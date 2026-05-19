@@ -1,0 +1,32 @@
+[
+  {
+    "id": "496ddfdeb23d",
+    "titre": "TOUTE TRANSACTION COMMERCIALE (JG JOEL GASDON CESSION D'ENTREPRISE & F — Entreprise",
+    "secteur": "services",
+    "secteur_label": "Services B2B",
+    "region": "",
+    "ville": "CHANGE",
+    "ca": null,
+    "ebe": null,
+    "prix": null,
+    "effectif": null,
+    "annee_creation": null,
+    "date_publication": "Récemment publié",
+    "source": "API Entreprises",
+    "source_url": "https://annuaire-entreprises.data.gouv.fr/entreprise/505345348",
+    "score": 65,
+    "score_financier": 55,
+    "score_valorisation": 50,
+    "score_croissance": 60,
+    "score_risque": 55,
+    "description": "TOUTE TRANSACTION COMMERCIALE (JG JOEL GASDON CESSION D'ENTREPRISE & FONDS DE COMMERCE) (TTC). Activité : 68.31Z. Localisation : CHANGE, .",
+    "points_forts": [
+      "Données officielles",
+      "SIREN vérifié",
+      "Entreprise active"
+    ],
+    "motif_cession": "À préciser avec le cédant",
+    "ca_trend": "stable",
+    "ca_evolution": "Non communiqué"
+  }
+]
