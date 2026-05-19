@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""DealScanner Scraper v4 — URLs corrigées 2025"""
+"""DealScanner Scraper v5 — Fusacq + BODACC + CessionPME + Leboncoin Pro"""
 
 import json, time, datetime, hashlib, os, re
 import urllib.request, urllib.parse
@@ -7,13 +7,13 @@ import urllib.request, urllib.parse
 DATA_FILE = os.path.join(os.path.dirname(__file__), '..', 'data', 'annonces.json')
 
 SECTEUR_MAP = {
-    'industrie':    ['industrie','fabrication','usinage','mécanique','btp','construction','bâtiment','métallurgie','menuiserie','plomberie','maçonnerie','soudure','charpente'],
-    'services':     ['conseil','audit','comptable','juridique','rh','formation','communication','service','agence','cabinet','nettoyage','sécurité','gardiennage'],
-    'commerce':     ['commerce','distribution','retail','négoce','vente','import','export','boutique','magasin','épicerie','boucherie','fleuriste','tabac'],
-    'tech':         ['informatique','logiciel','numérique','digital','web','saas','cloud','tech','développement','internet','ecommerce'],
-    'sante':        ['santé','médical','pharmacie','dentaire','clinique','optique','infirmier','kiné','ostéo','vétérinaire','laboratoire'],
-    'restauration': ['restaurant','brasserie','boulangerie','hôtel','café','traiteur','pizzeria','snack','bar','crêperie','pâtisserie'],
-    'transport':    ['transport','logistique','livraison','fret','déménagement','taxi','vtc','ambulance'],
+    'industrie':    ['industrie','fabrication','usinage','mécanique','btp','construction','bâtiment','métallurgie','menuiserie','plomberie','maçonnerie','soudure','charpente','imprimerie'],
+    'services':     ['conseil','audit','comptable','juridique','rh','formation','communication','service','agence','cabinet','nettoyage','sécurité','gardiennage','assurance'],
+    'commerce':     ['commerce','distribution','retail','négoce','vente','import','export','boutique','magasin','épicerie','boucherie','fleuriste','tabac','librairie'],
+    'tech':         ['informatique','logiciel','numérique','digital','web','saas','cloud','tech','développement','internet','ecommerce','app'],
+    'sante':        ['santé','médical','pharmacie','dentaire','clinique','optique','infirmier','kiné','ostéo','vétérinaire','laboratoire','bien-être','spa'],
+    'restauration': ['restaurant','brasserie','boulangerie','hôtel','café','traiteur','pizzeria','snack','bar','crêperie','pâtisserie','glacier','fast','kebab'],
+    'transport':    ['transport','logistique','livraison','fret','déménagement','taxi','vtc','ambulance','coursier'],
 }
 
 def detect_secteur(t):
@@ -41,23 +41,24 @@ def age_label(ds):
         return f"il y a {n//30} mois"
     except: return "Récemment publié"
 
-def fetch(url, t=20, accept='application/json'):
-    headers = {
-        'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 Chrome/120.0.0.0 Safari/537.36',
+UA = 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36'
+
+def fetch(url, t=25, accept='text/html'):
+    req = urllib.request.Request(url, headers={
+        'User-Agent': UA,
         'Accept': accept,
         'Accept-Language': 'fr-FR,fr;q=0.9,en;q=0.8',
         'Connection': 'keep-alive',
-    }
-    req = urllib.request.Request(url, headers=headers)
+        'Cache-Control': 'no-cache',
+    })
     try:
         with urllib.request.urlopen(req, timeout=t) as r:
             raw = r.read()
             if accept == 'application/json':
                 return json.loads(raw.decode('utf-8'))
-            else:
-                for enc in ['utf-8','latin-1']:
-                    try: return raw.decode(enc)
-                    except: pass
+            for enc in ['utf-8','latin-1','iso-8859-1']:
+                try: return raw.decode(enc)
+                except: pass
     except Exception as e:
         print(f"  ⚠ {url[:70]}: {e}")
     return None
@@ -80,42 +81,144 @@ def score_annonce(a):
     a['score_croissance']=min(95,s+2); a['score_risque']=min(95,s+8)
     return a
 
-# ── BODACC — URL corrigée 2025 ────────────────────────────────────
+def parse_montant(t):
+    if not t: return None
+    t = str(t).replace(' ','').replace('\xa0','').replace(',','.')
+    m = re.search(r'([\d.]+)[Mm][e€]', t)
+    if m:
+        try: return int(float(m.group(1))*1000)
+        except: pass
+    m = re.search(r'([\d.]+)[Kk][e€]?', t)
+    if m:
+        try: return int(float(m.group(1)))
+        except: pass
+    m = re.search(r'(\d{4,})', t.replace('.','').replace(',',''))
+    if m:
+        try:
+            v=int(m.group(1))
+            if v>1000000: return v//1000
+            if v>1000: return v
+            if v>100: return v
+        except: pass
+    return None
+
+# ══════════════════════════════════════════════════
+# SOURCE 1 : Fusacq — scraping HTML
+# ══════════════════════════════════════════════════
+def scrape_fusacq(pages=5):
+    print("📡 Fusacq — Annonces de cession...")
+    base = "https://www.fusacq.com"
+    out  = []
+    seen_titles = set()
+
+    for page in range(1, pages+1):
+        url = f"{base}/reprendre-une-entreprise/annonces-cession-entreprise_fr_?p={page}"
+        html = fetch(url)
+        if not html: break
+        time.sleep(2)
+
+        # Extraction liens complets vers fiches individuelles
+        fiches = re.findall(
+            r'<a[^>]+href="(/vente-entreprise[^"]{10,200})"[^>]*>([^<]{5,120})</a>',
+            html
+        )
+        if not fiches:
+            fiches_liens = re.findall(r'href="(/vente-entreprise[^"]{10,200})"', html)
+            fiches_titres = re.findall(
+                r'class="[^"]*(?:titre|title|name|fiche)[^"]*"[^>]*>([^<]{5,100})<',
+                html, re.IGNORECASE
+            )
+            fiches = list(zip(fiches_liens, fiches_titres + ['']*len(fiches_liens)))
+
+        # Extraire aussi les prix et localisations depuis la page
+        blocs = re.findall(
+            r'<(?:li|div|article)[^>]*class="[^"]*(?:annonce|fiche|listing|item)[^"]*"[^>]*>(.*?)</(?:li|div|article)>',
+            html, re.DOTALL | re.IGNORECASE
+        )
+
+        for i, (lien, titre) in enumerate(fiches[:20]):
+            try:
+                titre = re.sub(r'<[^>]+>','', titre).strip()
+                titre = re.sub(r'\s+',' ', titre).strip()
+                if len(titre) < 5 or titre in seen_titles: continue
+                seen_titles.add(titre)
+
+                # Infos du bloc correspondant
+                ca_val = prix_val = ville_val = ''
+                if i < len(blocs):
+                    bloc = blocs[i]
+                    txt = re.sub(r'<[^>]+>','', bloc)
+                    m = re.search(r'CA[^0-9]*([0-9][0-9 ]*(?:[kKmM])?[€e]?)', txt)
+                    if m: ca_val = m.group(1)
+                    m = re.search(r'(?:Prix|Cession)[^0-9]*([0-9][0-9 ]*(?:[kKmM])?[€e]?)', txt)
+                    if m: prix_val = m.group(1)
+                    m = re.search(r'\b([A-Z][a-zéèêëàâùûîïôœ\-]{2,}(?:\s[A-Z][a-z]+)?)\b', txt)
+                    if m: ville_val = m.group(1)
+
+                # ID unique basé sur le lien complet
+                uid = re.sub(r'[^a-z0-9]', '', lien.lower())[:20] or str(abs(hash(lien)))[:10]
+                sect = detect_secteur(titre)
+                a = {
+                    "id":               mkid("fusacq", uid),
+                    "titre":            titre[:80],
+                    "secteur":          sect,
+                    "secteur_label":    secteur_label(sect),
+                    "region":           "",
+                    "ville":            ville_val or "France",
+                    "ca":               parse_montant(ca_val),
+                    "ebe":              None,
+                    "prix":             parse_montant(prix_val),
+                    "effectif":         None,
+                    "annee_creation":   None,
+                    "date_publication": "Récemment publié",
+                    "source":           "Fusacq",
+                    "source_url":       base + lien,
+                    "description":      f"Annonce de cession publiée sur Fusacq. {titre}.",
+                    "points_forts":     ["Annonce vérifiée Fusacq","Dossier sur demande","Contact direct cédant"],
+                    "motif_cession":    "Voir annonce Fusacq",
+                    "ca_trend":         "stable",
+                    "ca_evolution":     "Voir dossier",
+                }
+                out.append(score_annonce(a))
+            except: continue
+
+        if not fiches: break
+
+    print(f"  ✓ {len(out)} annonces Fusacq")
+    return out
+
+# ══════════════════════════════════════════════════
+# SOURCE 2 : BODACC via API v2 corrigée
+# ══════════════════════════════════════════════════
 def scrape_bodacc(n=100):
     print("📡 BODACC — Ventes fonds de commerce...")
-    # Nouvelle URL API v1 (plus stable)
-    url = (
-        "https://bodacc-datadila.opendatasoft.com/api/records/1.0/search/"
-        "?dataset=annonces-commerciales-bodacc-a-b"
-        "&q=typeavis%3AVente"
-        "&sort=dateparution"
-        "&rows=100"
-        "&facet=typeavis"
-    )
-    data = fetch(url)
-
-    # Fallback URL v2
+    
+    # URLs à essayer dans l'ordre
+    urls = [
+        # API v2.1 - nom dataset correct
+        "https://bodacc-datadila.opendatasoft.com/api/explore/v2.1/catalog/datasets/adce/records?where=typeavis%3D%22Vente%22&order_by=dateparution%20desc&limit=100",
+        # Autre dataset possible
+        "https://bodacc-datadila.opendatasoft.com/api/explore/v2.1/catalog/datasets/annonces-commerciales-bodacc/records?where=typeavis%3D%22Vente%22&limit=100",
+        # Dataset annonces A
+        "https://bodacc-datadila.opendatasoft.com/api/explore/v2.1/catalog/datasets/bodacc-a/records?limit=100",
+    ]
+    
+    data = None
+    for url in urls:
+        data = fetch(url, accept='application/json')
+        if data and ('results' in data or 'records' in data):
+            print(f"  ✓ URL BODACC OK: {url[:60]}")
+            break
+        data = None
+    
     if not data:
-        url2 = (
-            "https://bodacc-datadila.opendatasoft.com/api/explore/v2.1/catalog/datasets"
-            "/annonces-commerciales-bodacc-a-b/records"
-            "?select=*&where=typeavis%3D%22Vente%22"
-            f"&order_by=dateparution%20desc&limit=100"
-        )
-        data = fetch(url2)
+        print("  BODACC non disponible (sera résolu dans la prochaine version)")
+        return []
 
-    if not data:
-        print("  BODACC non disponible"); return []
-
-    # Parser les deux formats possibles
-    records = (data.get('records') or  # format v1
-               data.get('results') or  # format v2
-               [])
-
+    records = data.get('results', data.get('records', []))
     out = []
     for rec in records[:n]:
         try:
-            # Format v1
             fields = rec.get('fields', rec)
             ville    = fields.get('ville','') or ''
             dept     = fields.get('departement_nom_officiel','') or fields.get('departement','') or ''
@@ -123,14 +226,11 @@ def scrape_bodacc(n=100):
             num      = fields.get('numerounique','') or str(abs(hash(str(rec))))[:8]
             acte     = fields.get('acte') or {}
             activite = ''
-            if isinstance(acte, dict):
-                activite = acte.get('activite','') or acte.get('descriptif','') or ''
-            if not activite:
-                activite = fields.get('commercant','') or ''
+            if isinstance(acte, dict): activite = acte.get('activite','') or acte.get('descriptif','') or ''
+            if not activite: activite = fields.get('commercant','') or ''
             if not activite and not ville: continue
-
-            sect  = detect_secteur(activite)
             annee = date_s[:4] if date_s else '2025'
+            sect = detect_secteur(activite)
             a = {
                 "id":               mkid("bodacc", num),
                 "titre":            (activite[:75] or f"Cession fonds — {ville}").strip(),
@@ -141,200 +241,159 @@ def scrape_bodacc(n=100):
                 "date_publication": age_label(date_s),
                 "source":           "BODACC",
                 "source_url":       f"https://www.bodacc.fr/annonce/detail-annonce/A/{annee}/{num}",
-                "description":      f"Vente fonds de commerce — BODACC officiel. {activite[:100] or 'Activité non précisée'}. {ville}, {dept}.",
-                "points_forts":     ["Publication légale officielle","Cession authentifiée BODACC","Dossier vérifiable"],
+                "description":      f"Vente de fonds de commerce publiée au BODACC. {activite[:100] or 'Non précisée'}. {ville}, {dept}.",
+                "points_forts":     ["Publication légale officielle","Cession authentifiée","Dossier vérifiable"],
                 "motif_cession":    "Annonce légale BODACC",
-                "ca_trend":         "stable", "ca_evolution": "Non communiqué",
+                "ca_trend":         "stable","ca_evolution": "Non communiqué",
             }
             out.append(score_annonce(a))
         except: continue
-
-    print(f"  ✓ {len(out)} annonces")
+    print(f"  ✓ {len(out)} annonces BODACC")
     return out
 
-# ── BODACC Procédures ─────────────────────────────────────────────
-def scrape_bodacc_procedures(n=40):
-    print("📡 BODACC — Procédures collectives (reprises)...")
-    url = (
-        "https://bodacc-datadila.opendatasoft.com/api/records/1.0/search/"
-        "?dataset=annonces-commerciales-bodacc-a-b"
-        "&q=typeavis%3ARedressement+OR+typeavis%3ASauvegarde"
-        "&sort=dateparution&rows=50"
-    )
-    data = fetch(url)
-    if not data: print("  Non disponible"); return []
-
-    records = data.get('records', [])
-    out = []
-    for rec in records[:n]:
-        try:
-            fields   = rec.get('fields', rec)
-            ville    = fields.get('ville','') or ''
-            dept     = fields.get('departement_nom_officiel','') or ''
-            date_s   = fields.get('dateparution','') or ''
-            num      = fields.get('numerounique','') or str(abs(hash(str(rec))))[:8]
-            acte     = fields.get('acte') or {}
-            activite = ''
-            if isinstance(acte, dict): activite = acte.get('activite','') or ''
-            if not activite: activite = fields.get('commercant','') or ''
-            if not activite: continue
-            sect = detect_secteur(activite)
-            a = {
-                "id":               mkid("bodaccb", num),
-                "titre":            f"⚖️ Reprise possible — {activite[:60]}",
-                "secteur":          sect, "secteur_label": secteur_label(sect),
-                "region":           dept, "ville": ville,
-                "ca":None,"ebe":None,"prix":None,"effectif":None,"annee_creation":None,
-                "date_publication": age_label(date_s),
-                "source":           "BODACC",
-                "source_url":       "https://www.bodacc.fr",
-                "description":      f"Entreprise en procédure collective — reprise possible. {activite[:100]}. {ville}, {dept}.",
-                "points_forts":     ["Prix de reprise négociable","Actifs potentiellement valorisables","Procédure encadrée par le tribunal"],
-                "motif_cession":    "Redressement / Sauvegarde judiciaire",
-                "ca_trend":         "down", "ca_evolution": "À évaluer avec le mandataire",
-            }
-            out.append(score_annonce(a))
-        except: continue
-    print(f"  ✓ {len(out)} procédures")
-    return out
-
-# ── Fusacq — scraping HTML ────────────────────────────────────────
-def scrape_fusacq(pages=5):
-    print("📡 Fusacq — Scraping annonces...")
-    base = "https://www.fusacq.com"
+# ══════════════════════════════════════════════════
+# SOURCE 3 : Leboncoin Pro — fonds de commerce
+# ══════════════════════════════════════════════════
+def scrape_leboncoin(pages=3):
+    print("📡 Leboncoin Pro — Fonds de commerce...")
+    base = "https://www.leboncoin.fr"
     out  = []
 
     for page in range(1, pages+1):
-        url  = f"{base}/reprendre-une-entreprise/annonces-cession-entreprise_fr_?p={page}"
-        html = fetch(url, accept='text/html')
+        url = f"{base}/ventes_immobilieres_professionnelles/offres/france/?page={page}"
+        html = fetch(url)
         if not html: break
         time.sleep(2)
 
-        # Extraction liens + titres
-        liens = re.findall(
-            r'href="(/vente-entreprise[^"]{10,200})"[^>]*>\s*([^<]{5,100})',
-            html
-        )
-        if not liens:
-            # Pattern alternatif
-            liens_raw = re.findall(r'href="(/vente-entreprise[^"]+)"', html)
-            titres_raw = re.findall(r'<(?:h2|h3|a)[^>]*class="[^"]*(?:title|titre|nom)[^"]*"[^>]*>([^<]{5,100})<', html)
-            liens = list(zip(liens_raw[:20], titres_raw[:20]))
+        # Extraction annonces leboncoin
+        # Titres et liens
+        liens = re.findall(r'"url":"(/ad/ventes_immobilieres[^"]+)"', html)
+        titres = re.findall(r'"subject":"([^"]{5,100})"', html)
+        prix_list = re.findall(r'"price":\[(\d+)\]', html)
+        villes_list = re.findall(r'"city":"([^"]{2,50})"', html)
 
-        for lien, titre in liens[:20]:
+        for i, lien in enumerate(liens[:20]):
             try:
-                titre = re.sub(r'<[^>]+>','', titre).strip()
-                if len(titre) < 5: continue
-                # Extraire infos depuis l'URL
-                parts = lien.split('-')
-                ville = ''
-                for p in parts[::-1]:
-                    if len(p) > 3 and p.isalpha():
-                        ville = p.capitalize()
-                        break
-                uid  = lien.split(',')[-1].split('_')[0] or str(abs(hash(lien)))[:8]
+                titre = titres[i] if i < len(titres) else "Fonds de commerce"
+                prix_v = int(prix_list[i]) if i < len(prix_list) else None
+                ville_v = villes_list[i] if i < len(villes_list) else "France"
+                uid = re.sub(r'[^0-9]','',lien)[:12] or str(abs(hash(lien)))[:10]
                 sect = detect_secteur(titre)
                 a = {
-                    "id":               mkid("fusacq", uid),
-                    "titre":            titre[:75],
-                    "secteur":          sect, "secteur_label": secteur_label(sect),
-                    "region":           "", "ville": ville or "France",
-                    "ca":None,"ebe":None,"prix":None,"effectif":None,"annee_creation":None,
+                    "id":               mkid("lbc", uid),
+                    "titre":            titre[:80],
+                    "secteur":          sect,
+                    "secteur_label":    secteur_label(sect),
+                    "region":           "",
+                    "ville":            ville_v,
+                    "ca":               None,
+                    "ebe":              None,
+                    "prix":             int(prix_v/1000) if prix_v and prix_v > 1000 else prix_v,
+                    "effectif":         None,
+                    "annee_creation":   None,
                     "date_publication": "Récemment publié",
-                    "source":           "Fusacq",
+                    "source":           "Le Bon Coin Pro",
                     "source_url":       base + lien,
-                    "description":      f"Annonce de cession d'entreprise publiée sur Fusacq. {titre}.",
-                    "points_forts":     ["Annonce vérifiée Fusacq","Dossier disponible sur demande","Contact direct avec le cédant"],
-                    "motif_cession":    "Voir annonce complète sur Fusacq",
-                    "ca_trend":         "stable", "ca_evolution": "Voir dossier",
+                    "description":      f"Annonce de cession publiée sur Leboncoin Pro. {titre}. {ville_v}.",
+                    "points_forts":     ["Annonce Leboncoin vérifiée","Contact direct","Prix visible"],
+                    "motif_cession":    "Voir annonce Leboncoin",
+                    "ca_trend":         "stable",
+                    "ca_evolution":     "Voir annonce",
                 }
                 out.append(score_annonce(a))
             except: continue
         if not liens: break
 
-    print(f"  ✓ {len(out)} annonces Fusacq")
+    print(f"  ✓ {len(out)} annonces Leboncoin Pro")
     return out
 
-# ── CCI / Transentreprise ─────────────────────────────────────────
-def scrape_cci(pages=3):
-    print("📡 CCI / Transentreprise...")
-    # URL corrigée
-    urls_to_try = [
-        "https://www.transentreprise.com/annonces-cession",
-        "https://www.transentreprise.com/entreprises-a-reprendre",
-        "https://www.transentreprise.com/annonces",
-    ]
-    base = "https://www.transentreprise.com"
+# ══════════════════════════════════════════════════
+# SOURCE 4 : CessionPME
+# ══════════════════════════════════════════════════
+def scrape_cessionpme(pages=3):
+    print("📡 CessionPME — Annonces...")
+    base = "https://www.cessionpme.com"
     out  = []
 
-    for base_url in urls_to_try:
-        for page in range(1, pages+1):
-            sep = '&' if '?' in base_url else '?'
-            url = f"{base_url}{sep}page={page}"
-            html = fetch(url, accept='text/html')
-            if not html: continue
-            time.sleep(1.5)
+    for page in range(1, pages+1):
+        url = f"{base}/annonces-cession?page={page}"
+        html = fetch(url)
+        if not html:
+            # Essai URL alternative
+            url2 = f"{base}/annonces?page={page}"
+            html = fetch(url2)
+        if not html: break
+        time.sleep(2)
 
-            # Extraction
-            liens  = re.findall(r'href="(/(?:annonce|entreprise|offre)[^"]{5,100})"', html)
-            titres = re.findall(r'<(?:h2|h3)[^>]*>([^<]{10,120})</(?:h2|h3)>', html)
+        liens  = re.findall(r'href="(/annonce[^"]{5,100})"', html)
+        titres = re.findall(r'<(?:h2|h3)[^>]*>([^<]{5,100})</(?:h2|h3)>', html)
 
-            if not liens: continue
+        for i, lien in enumerate(liens[:15]):
+            try:
+                titre = titres[i] if i < len(titres) else "Entreprise à reprendre"
+                titre = re.sub(r'<[^>]+>','', titre).strip()
+                if len(titre) < 5: continue
+                uid = re.sub(r'[^a-z0-9]','', lien.lower())[:15]
+                sect = detect_secteur(titre)
+                a = {
+                    "id":               mkid("cessionpme", uid),
+                    "titre":            titre[:80],
+                    "secteur":          sect,
+                    "secteur_label":    secteur_label(sect),
+                    "region":           "",
+                    "ville":            "France",
+                    "ca":None,"ebe":None,"prix":None,"effectif":None,"annee_creation":None,
+                    "date_publication": "Récemment publié",
+                    "source":           "Cession PME",
+                    "source_url":       base + lien,
+                    "description":      f"Annonce de cession publiée sur CessionPME. {titre}.",
+                    "points_forts":     ["Annonce vérifiée","Dossier disponible","Contact direct"],
+                    "motif_cession":    "Voir annonce CessionPME",
+                    "ca_trend":         "stable",
+                    "ca_evolution":     "Voir dossier",
+                }
+                out.append(score_annonce(a))
+            except: continue
+        if not liens: break
 
-            for i, lien in enumerate(liens[:15]):
-                try:
-                    titre = titres[i] if i < len(titres) else "Entreprise à reprendre"
-                    titre = re.sub(r'<[^>]+>','', titre).strip()
-                    if len(titre) < 5: continue
-                    sect = detect_secteur(titre)
-                    a = {
-                        "id":               mkid("cci", lien),
-                        "titre":            titre[:75],
-                        "secteur":          sect, "secteur_label": secteur_label(sect),
-                        "region":           "", "ville": "France",
-                        "ca":None,"ebe":None,"prix":None,"effectif":None,"annee_creation":None,
-                        "date_publication": "Récemment publié",
-                        "source":           "CCI France",
-                        "source_url":       base + lien,
-                        "description":      f"Annonce de cession — réseau CCI France / Transentreprise. {titre}.",
-                        "points_forts":     ["Réseau CCI officiel","Accompagnement disponible","Dossier vérifié par la CCI"],
-                        "motif_cession":    "Voir annonce complète",
-                        "ca_trend":         "stable", "ca_evolution": "Voir dossier",
-                    }
-                    out.append(score_annonce(a))
-                except: continue
-            break  # URL trouvée
-
-    print(f"  ✓ {len(out)} annonces CCI")
+    print(f"  ✓ {len(out)} annonces CessionPME")
     return out
 
-# ── Programme principal ───────────────────────────────────────────
+# ══════════════════════════════════════════════════
+# PROGRAMME PRINCIPAL
+# ══════════════════════════════════════════════════
 def main():
     print(f"\n{'='*55}")
-    print(f"DealScanner v4 — {datetime.datetime.now().strftime('%d/%m/%Y %H:%M')}")
+    print(f"DealScanner v5 — {datetime.datetime.now().strftime('%d/%m/%Y %H:%M')}")
     print(f"{'='*55}\n")
 
     all_annonces = []
 
-    for fn in [scrape_bodacc, scrape_bodacc_procedures, scrape_fusacq, scrape_cci]:
-        try: all_annonces += fn()
-        except Exception as e: print(f"Erreur {fn.__name__}: {e}")
+    for fn in [scrape_fusacq, scrape_bodacc, scrape_leboncoin, scrape_cessionpme]:
+        try:
+            result = fn()
+            all_annonces += result
+            print(f"  → Total cumulé: {len(all_annonces)}")
+        except Exception as e:
+            print(f"Erreur {fn.__name__}: {e}")
         time.sleep(2)
 
-    # Dédoublonnage
+    # Dédoublonnage par ID
     seen, unique = set(), []
     for a in all_annonces:
         if a['id'] not in seen:
             seen.add(a['id'])
             unique.append(a)
 
-    print(f"\n📊 Total: {len(all_annonces)} | Dédup: {len(unique)}")
+    print(f"\n{'='*55}")
+    print(f"📊 Total brut: {len(all_annonces)} | Après dédup: {len(unique)}")
 
-    if len(unique) < 10:
-        print("⚠️  Pas assez de données — conservation fichier existant")
+    # Seuil bas : sauvegarde dès 5 annonces
+    if len(unique) < 5:
+        print("⚠️  Moins de 5 annonces — conservation fichier existant")
         return
 
-    unique.sort(key=lambda x: x.get('score',0), reverse=True)
+    unique.sort(key=lambda x: x.get('score', 0), reverse=True)
 
     os.makedirs(os.path.dirname(DATA_FILE), exist_ok=True)
     with open(DATA_FILE, 'w', encoding='utf-8') as f:
