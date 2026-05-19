@@ -1,0 +1,781 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DealScanner — Trouvez votre prochaine entreprise</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;700;900&family=Plus+Jakarta+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+<style>
+:root {
+  --cream:#faf7f2; --white:#fff; --ink:#1a1714; --mid:#7a7570;
+  --border:#e8e2d8; --sun:#f5a623; --sun2:#ffc95c; --coral:#f05a4e;
+  --mint:#2ecc8e; --sky:#4a9fd4;
+  --shadow-sm:0 2px 8px rgba(26,23,20,.08);
+  --shadow-md:0 8px 32px rgba(26,23,20,.12);
+  --shadow-lg:0 24px 64px rgba(26,23,20,.16);
+  --font:"Plus Jakarta Sans",sans-serif;
+  --font-display:"Unbounded",sans-serif;
+}
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--cream);color:var(--ink);font-family:var(--font);font-size:14px;overflow-x:hidden}
+::-webkit-scrollbar{width:4px} ::-webkit-scrollbar-thumb{background:var(--sun);border-radius:4px}
+
+/* NAV */
+nav{position:sticky;top:0;z-index:100;background:rgba(250,247,242,.95);backdrop-filter:blur(20px);border-bottom:2px solid var(--border);display:flex;align-items:center;padding:0 40px;height:64px;gap:0}
+.logo{display:flex;align-items:center;gap:10px;text-decoration:none;margin-right:40px}
+.logo-mark{width:36px;height:36px;background:var(--sun);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;box-shadow:0 4px 12px rgba(245,166,35,.35);transition:transform .2s}
+.logo:hover .logo-mark{transform:rotate(-8deg) scale(1.05)}
+.logo-text{font-family:var(--font-display);font-size:17px;font-weight:900;color:var(--ink)}
+.logo-text span{color:var(--sun)}
+.nav-links{display:flex;gap:4px;list-style:none}
+.nav-links a{padding:8px 16px;border-radius:8px;text-decoration:none;font-size:13px;font-weight:500;color:var(--mid);transition:all .2s}
+.nav-links a:hover{background:var(--white);color:var(--ink)}
+.nav-links a.ced{background:var(--coral);color:var(--white)}
+.nav-right{margin-left:auto;display:flex;align-items:center;gap:12px}
+.nav-badge{background:rgba(46,204,142,.15);border:1px solid rgba(46,204,142,.3);color:#1a9965;font-size:11px;font-weight:600;padding:4px 10px;border-radius:20px;display:flex;align-items:center;gap:5px}
+.live-dot{width:6px;height:6px;border-radius:50%;background:var(--mint);animation:blink 2s infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+.btn-alerte{background:var(--sun);color:var(--white);border:none;cursor:pointer;font-family:var(--font);font-size:13px;font-weight:600;padding:10px 22px;border-radius:12px;box-shadow:0 4px 16px rgba(245,166,35,.35);transition:all .2s}
+.btn-alerte:hover{transform:translateY(-2px)}
+
+/* HERO */
+.hero{padding:64px 40px 56px;position:relative;overflow:hidden}
+.blob{position:absolute;border-radius:50%;filter:blur(80px);pointer-events:none;opacity:.25}
+.blob-1{width:500px;height:500px;background:var(--sun);top:-200px;right:-100px}
+.blob-2{width:350px;height:350px;background:var(--mint);bottom:-100px;left:-80px}
+.hero-inner{max-width:1100px;margin:0 auto;position:relative;z-index:1}
+.hero-pills{display:flex;gap:8px;margin-bottom:24px;flex-wrap:wrap}
+.pill{display:flex;align-items:center;gap:6px;padding:6px 14px;border-radius:20px;font-size:12px;font-weight:500;border:1.5px solid}
+.pill-1{background:rgba(245,166,35,.1);border-color:rgba(245,166,35,.3);color:#c47800}
+.pill-2{background:rgba(46,204,142,.1);border-color:rgba(46,204,142,.3);color:#1a9965}
+.pill-3{background:rgba(74,159,212,.1);border-color:rgba(74,159,212,.3);color:#2a6a9a}
+.hero h1{font-family:var(--font-display);font-size:clamp(36px,5vw,64px);font-weight:900;line-height:1.05;letter-spacing:-1.5px;margin-bottom:16px}
+.hero h1 .hl{background:linear-gradient(135deg,var(--sun),var(--coral));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.hero-sub{font-size:16px;color:var(--mid);line-height:1.7;max-width:520px;margin-bottom:36px}
+
+/* SEARCH */
+.search-card{background:var(--white);border-radius:20px;box-shadow:var(--shadow-lg);border:1.5px solid var(--border);max-width:900px;overflow:hidden}
+.search-top{display:grid;grid-template-columns:2.5fr 1fr 1fr 1fr}
+.s-cell{padding:18px 20px;border-right:1.5px solid var(--border);border-bottom:1.5px solid var(--border);transition:background .2s}
+.s-cell:last-child{border-right:none}
+.s-cell:focus-within{background:rgba(245,166,35,.04)}
+.s-lbl{font-size:10px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:var(--mid);margin-bottom:6px}
+.s-in,.s-sel{background:transparent;border:none;outline:none;font-family:var(--font);font-size:15px;font-weight:500;color:var(--ink);width:100%}
+.s-in::placeholder{color:var(--border);font-weight:400}
+.s-sel{cursor:pointer;appearance:none}
+.search-bot{display:flex;align-items:center;justify-content:space-between;padding:12px 20px;background:var(--cream);gap:12px;flex-wrap:wrap}
+.s-pills{display:flex;gap:6px;flex-wrap:wrap}
+.s-pill{padding:6px 14px;border-radius:20px;font-size:11px;font-weight:600;background:var(--white);border:1.5px solid var(--border);color:var(--mid);cursor:pointer;transition:all .2s}
+.s-pill:hover{border-color:var(--sun);color:var(--sun)}
+.s-pill.active{background:var(--sun);border-color:var(--sun);color:var(--white);box-shadow:0 4px 12px rgba(245,166,35,.3)}
+.btn-scan{background:linear-gradient(135deg,var(--sun),var(--coral));color:var(--white);border:none;cursor:pointer;font-family:var(--font);font-size:14px;font-weight:700;padding:14px 28px;border-radius:14px;box-shadow:0 6px 24px rgba(240,90,78,.3);transition:all .2s;white-space:nowrap}
+.btn-scan:hover{transform:translateY(-2px)}
+.btn-scan:disabled{opacity:.6;transform:none}
+
+/* STATS */
+.stats-strip{display:grid;grid-template-columns:repeat(4,1fr);border-top:2px solid var(--border);border-bottom:2px solid var(--border);background:var(--white)}
+.stat-cell{padding:24px 28px;border-right:1.5px solid var(--border)}
+.stat-cell:last-child{border-right:none}
+.stat-emoji{font-size:24px;margin-bottom:8px;display:block}
+.stat-n{font-family:var(--font-display);font-size:30px;font-weight:900;color:var(--ink);letter-spacing:-1px;line-height:1}
+.stat-n .acc{color:var(--sun)}
+.stat-l{font-size:12px;color:var(--mid);margin-top:4px;font-weight:500}
+
+/* WORKSPACE */
+.workspace{display:grid;grid-template-columns:240px 1fr;max-width:1400px;margin:0 auto;padding:28px 40px;gap:24px}
+.sidebar{position:sticky;top:80px;height:fit-content;display:flex;flex-direction:column;gap:14px}
+.filter-card{background:var(--white);border-radius:14px;border:1.5px solid var(--border);padding:18px;box-shadow:var(--shadow-sm)}
+.filter-title{font-family:var(--font-display);font-size:10px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:var(--mid);margin-bottom:12px;display:flex;align-items:center;gap:8px}
+.filter-title::after{content:"";flex:1;height:1.5px;background:var(--border)}
+.f-row{display:flex;align-items:center;justify-content:space-between;padding:8px 10px;border-radius:10px;cursor:pointer;transition:all .15s;margin:0 -10px}
+.f-row:hover{background:var(--cream)}
+.f-row:hover .f-name{color:var(--sun)}
+.f-name{font-size:13px;font-weight:500;transition:color .15s}
+.f-cnt{font-size:11px;font-weight:600;color:var(--mid);background:var(--cream);padding:2px 8px;border-radius:8px}
+.range-pair{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px}
+.r-in{background:var(--cream);border:1.5px solid var(--border);border-radius:10px;padding:8px 12px;font-family:var(--font);font-size:13px;color:var(--ink);outline:none;width:100%;transition:border-color .2s}
+.r-in:focus{border-color:var(--sun)}
+.r-in::placeholder{color:var(--border)}
+.btn-filter{width:100%;padding:10px;border-radius:10px;background:var(--cream);border:1.5px solid var(--border);font-family:var(--font);font-size:12px;font-weight:600;color:var(--sun);cursor:pointer;transition:all .2s}
+.btn-filter:hover{background:rgba(245,166,35,.1);border-color:var(--sun)}
+
+/* RESULTS */
+.results-bar{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+.r-count{font-family:var(--font-display);font-size:14px;font-weight:700}
+.r-count span{color:var(--sun)}
+.sort-tabs{display:flex;gap:4px}
+.s-tab{padding:7px 14px;border-radius:10px;font-size:12px;font-weight:600;background:var(--white);border:1.5px solid var(--border);color:var(--mid);cursor:pointer;transition:all .2s}
+.s-tab:hover{border-color:var(--sun);color:var(--sun)}
+.s-tab.active{background:var(--ink);border-color:var(--ink);color:var(--white)}
+
+/* LOADING */
+.loading-wrap{display:none;padding:40px 0}
+.loading-wrap.on{display:block}
+.loading-card{background:var(--white);border-radius:16px;border:1.5px solid var(--border);padding:28px;box-shadow:var(--shadow-sm);max-width:500px}
+.loading-top{display:flex;align-items:center;gap:12px;margin-bottom:20px}
+.spinner{width:28px;height:28px;border:3px solid var(--border);border-top-color:var(--sun);border-radius:50%;animation:spin .7s linear infinite;flex-shrink:0}
+@keyframes spin{to{transform:rotate(360deg)}}
+.loading-title{font-family:var(--font-display);font-size:15px;font-weight:700}
+.steps-list{display:flex;flex-direction:column;gap:8px}
+.step-item{display:flex;align-items:center;gap:12px;padding:10px 12px;border-radius:10px;border:1.5px solid var(--border);transition:all .3s}
+.step-item.active{border-color:var(--sun);background:rgba(245,166,35,.05)}
+.step-item.done{border-color:var(--mint);background:rgba(46,204,142,.05)}
+.step-icon{font-size:15px;width:22px;text-align:center}
+.step-text{flex:1;font-size:13px;font-weight:500;color:var(--mid)}
+.step-item.active .step-text{color:var(--ink)}
+.step-item.done .step-text{color:var(--mint)}
+.progress-bar{height:4px;background:var(--border);border-radius:2px;margin-top:18px;overflow:hidden}
+.progress-fill{height:100%;border-radius:2px;background:linear-gradient(90deg,var(--sun),var(--coral));transition:width .5s ease}
+
+/* EMPTY */
+.empty-wrap{display:none;text-align:center;padding:60px 20px}
+.empty-wrap.on{display:block}
+.empty-illus{font-size:48px;margin-bottom:16px;animation:float 3s ease-in-out infinite}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
+.empty-title{font-family:var(--font-display);font-size:22px;font-weight:900;margin-bottom:8px}
+.empty-sub{font-size:14px;color:var(--mid)}
+
+/* DEAL CARD */
+.deal-card{background:var(--white);border-radius:16px;border:1.5px solid var(--border);margin-bottom:14px;overflow:hidden;box-shadow:var(--shadow-sm);transition:all .25s;animation:cardPop .35s ease both}
+@keyframes cardPop{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+.deal-card:hover{box-shadow:var(--shadow-md);transform:translateY(-2px);border-color:rgba(245,166,35,.3)}
+.dc-top{padding:16px 20px 8px;display:flex;justify-content:space-between;align-items:start}
+.dc-tags{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+.dc-tag{font-size:11px;font-weight:600;padding:4px 10px;border-radius:8px}
+.t-industrie{background:#e8f5ee;color:#1a7a40}
+.t-services{background:#e8f0f8;color:#1a4a7a}
+.t-commerce{background:#fef3e0;color:#7a4a00}
+.t-tech{background:#f3eafd;color:#5a20a0}
+.t-sante{background:#fde8ea;color:#8a1a20}
+.t-restauration{background:#fdf0e0;color:#7a3a00}
+.t-transport{background:#e8f5fd;color:#0a4a6a}
+.t-source{background:var(--cream);color:var(--mid);font-weight:500}
+.dc-score{text-align:right}
+.dc-score-num{font-family:var(--font-display);font-size:34px;font-weight:900;line-height:1;letter-spacing:-1px}
+.s-excellent{color:var(--mint)}
+.s-good{color:var(--sun)}
+.s-avg{color:var(--mid)}
+.dc-score-lbl{font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--mid)}
+.dc-title{font-family:var(--font-display);font-size:16px;font-weight:700;padding:4px 20px 4px;line-height:1.2;color:var(--ink);letter-spacing:-.3px}
+.dc-loc{padding:0 20px 12px;font-size:12px;color:var(--mid);font-weight:500}
+.dc-metrics{display:grid;grid-template-columns:repeat(4,1fr);border-top:1.5px solid var(--border);border-bottom:1.5px solid var(--border)}
+.dc-m{padding:10px 14px;border-right:1.5px solid var(--border);background:var(--cream)}
+.dc-m:last-child{border-right:none}
+.dc-m-lbl{font-size:10px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:var(--mid);margin-bottom:3px}
+.dc-m-val{font-family:var(--font-display);font-size:15px;font-weight:700;color:var(--ink)}
+.dc-prix-val{color:var(--sun) !important}
+.dc-m-sub{font-size:11px;color:var(--mid);margin-top:2px}
+.dc-m-up{color:var(--mint) !important}
+.dc-m-down{color:var(--coral) !important}
+.dc-bottom{padding:12px 20px;display:flex;align-items:center;justify-content:space-between}
+.dc-bars{display:flex;gap:12px}
+.dc-bar-item{display:flex;flex-direction:column;gap:4px;align-items:start}
+.dc-bar-track{width:36px;height:4px;background:var(--border);border-radius:2px;overflow:hidden}
+.dc-bar-fill{height:100%;border-radius:2px}
+.dc-bar-lbl{font-size:9px;font-weight:700;color:var(--mid);letter-spacing:.5px}
+.dc-actions{display:flex;gap:8px}
+.dc-btn{padding:9px 18px;border-radius:12px;font-family:var(--font);font-size:12px;font-weight:700;cursor:pointer;transition:all .2s;border:1.5px solid var(--border)}
+.dc-btn-ghost{background:var(--white);color:var(--mid)}
+.dc-btn-ghost:hover{border-color:var(--coral);color:var(--coral)}
+.dc-btn-ghost.saved{border-color:var(--coral);color:var(--coral)}
+.dc-btn-main{background:var(--ink);color:var(--white);border-color:var(--ink);box-shadow:0 4px 12px rgba(26,23,20,.2)}
+.dc-btn-main:hover{background:#333;transform:translateY(-1px)}
+
+/* MODAL */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(26,23,20,.65);backdrop-filter:blur(10px);z-index:9999;align-items:center;justify-content:center;padding:20px}
+.modal-box{background:var(--white);border-radius:24px;border:1.5px solid var(--border);box-shadow:var(--shadow-lg);max-width:680px;width:100%;max-height:88vh;overflow-y:auto;position:relative;animation:mIn .3s cubic-bezier(.34,1.56,.64,1)}
+@keyframes mIn{from{opacity:0;transform:scale(.92)}to{opacity:1;transform:scale(1)}}
+.modal-box::-webkit-scrollbar{width:0}
+.modal-close-btn{position:absolute;top:16px;right:16px;width:30px;height:30px;border-radius:8px;background:var(--cream);border:1.5px solid var(--border);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:13px;color:var(--mid);transition:all .15s}
+.modal-close-btn:hover{background:var(--coral);color:var(--white);border-color:var(--coral)}
+.modal-hero{padding:24px 24px 0;background:linear-gradient(135deg,rgba(245,166,35,.08),rgba(240,90,78,.04));border-bottom:1.5px solid var(--border)}
+.modal-kpis{display:grid;grid-template-columns:repeat(3,1fr)}
+.mkpi{padding:16px 20px;border-right:1.5px solid var(--border);background:var(--white)}
+.mkpi:last-child{border-right:none}
+.mkpi-lbl{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--mid);margin-bottom:5px}
+.mkpi-val{font-family:var(--font-display);font-size:24px;font-weight:900;color:var(--ink)}
+.mkpi-val.gold{color:var(--sun)}
+.mkpi-sub{font-size:11px;color:var(--mid);margin-top:2px}
+.modal-content{padding:20px 24px}
+.m-section-lbl{font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--mid);margin:0 0 8px;display:flex;align-items:center;gap:10px}
+.m-section-lbl::after{content:"";flex:1;height:1.5px;background:var(--border)}
+.m-text{font-size:13px;color:var(--mid);line-height:1.7;margin-bottom:16px}
+.m-points{display:flex;flex-direction:column;gap:6px;margin-bottom:16px}
+.m-point{display:flex;align-items:center;gap:10px;padding:10px 14px;border-radius:10px;background:var(--cream);font-size:13px;font-weight:500}
+.m-point::before{content:"✓";color:var(--mint);font-weight:700;font-size:13px}
+.score-widget{background:var(--cream);border-radius:14px;padding:18px;margin-bottom:16px;border:1.5px solid var(--border)}
+.sw-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
+.sw-title{font-family:var(--font-display);font-size:11px;font-weight:700;color:var(--mid);letter-spacing:.5px}
+.sw-score{font-family:var(--font-display);font-size:44px;font-weight:900;line-height:1}
+.sw-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.sw-row{display:flex;flex-direction:column;gap:4px}
+.sw-row-top{display:flex;justify-content:space-between}
+.sw-row-label{font-size:11px;font-weight:600;color:var(--mid)}
+.sw-row-val{font-size:11px;font-weight:700}
+.sw-bar{height:5px;background:var(--border);border-radius:3px;overflow:hidden}
+.sw-fill{height:100%;border-radius:3px;transition:width .5s ease}
+.ai-box{background:linear-gradient(135deg,rgba(245,166,35,.08),rgba(240,90,78,.05));border:1.5px solid rgba(245,166,35,.25);border-radius:14px;padding:16px;margin-bottom:16px}
+.ai-box-header{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.ai-chip{background:var(--sun);color:var(--white);font-size:10px;font-weight:700;letter-spacing:1px;padding:3px 10px;border-radius:6px}
+.ai-box-text{font-size:13px;line-height:1.7;color:var(--mid)}
+.ai-loading{font-style:italic}
+.modal-ctas{display:flex;gap:10px}
+.m-cta{flex:1;padding:14px;border-radius:12px;font-family:var(--font);font-size:13px;font-weight:700;cursor:pointer;transition:all .2s;text-align:center;border:1.5px solid var(--border)}
+.m-cta-main{background:linear-gradient(135deg,var(--sun),var(--coral));color:var(--white);border-color:transparent;box-shadow:0 6px 20px rgba(240,90,78,.3)}
+.m-cta-main:hover{transform:translateY(-2px)}
+.m-cta-ghost{background:var(--white);color:var(--mid);text-decoration:none;display:flex;align-items:center;justify-content:center}
+.m-cta-ghost:hover{border-color:var(--ink);color:var(--ink)}
+
+/* OVERLAY ALERTS / CEDANT */
+.overlay{display:none;position:fixed;inset:0;background:rgba(26,23,20,.6);backdrop-filter:blur(10px);z-index:3000;align-items:center;justify-content:center;padding:20px}
+.overlay.on{display:flex}
+.modal-alerte,.modal-cedant{background:var(--white);border-radius:24px;border:1.5px solid var(--border);box-shadow:var(--shadow-lg);max-width:500px;width:100%;overflow:hidden;animation:mIn .35s cubic-bezier(.34,1.56,.64,1)}
+.modal-cedant{max-width:580px;max-height:88vh;overflow-y:auto}
+.modal-alerte-header,.cedant-hero{padding:24px 28px 20px;border-bottom:1.5px solid var(--border);position:relative}
+.modal-alerte-header{background:linear-gradient(135deg,#fff8ed,#fff3f0)}
+.cedant-hero{background:var(--ink);color:var(--white)}
+.close-x,.cedant-close{position:absolute;top:14px;right:14px;width:28px;height:28px;border-radius:8px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:13px;transition:all .15s}
+.close-x{background:var(--cream);border:1.5px solid var(--border);color:var(--mid)}
+.close-x:hover,.cedant-close:hover{background:var(--coral);color:var(--white);border-color:var(--coral)}
+.cedant-close{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);color:rgba(255,255,255,.6)}
+.alerte-icon{font-size:36px;margin-bottom:8px}
+.alerte-title{font-family:var(--font-display);font-size:20px;font-weight:900;letter-spacing:-.5px;margin-bottom:6px}
+.alerte-sub{font-size:13px;color:var(--mid);line-height:1.6}
+.cedant-badge{display:inline-flex;align-items:center;gap:6px;background:rgba(245,166,35,.2);border:1px solid rgba(245,166,35,.3);color:var(--sun);font-size:10px;font-weight:700;letter-spacing:1px;padding:4px 12px;border-radius:20px;margin-bottom:12px}
+.cedant-title{font-family:var(--font-display);font-size:22px;font-weight:900;color:var(--white);letter-spacing:-.5px;margin-bottom:8px;line-height:1.1}
+.cedant-title span{color:var(--sun)}
+.cedant-sub{font-size:12px;color:rgba(255,255,255,.5);line-height:1.6}
+.modal-alerte-body,.cedant-body{padding:20px 28px}
+.al-section{font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--mid);margin-bottom:10px;display:flex;align-items:center;gap:8px}
+.al-section::after{content:"";flex:1;height:1.5px;background:var(--border)}
+.al-chips{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:16px}
+.al-chip{padding:6px 13px;border-radius:20px;font-size:11px;font-weight:600;background:var(--cream);border:1.5px solid var(--border);color:var(--mid);cursor:pointer;transition:all .2s}
+.al-chip:hover{border-color:var(--sun);color:var(--sun)}
+.al-chip.on{background:var(--sun);border-color:var(--sun);color:var(--white)}
+.al-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
+.al-field{display:flex;flex-direction:column;gap:4px}
+.al-label{font-size:11px;font-weight:700;color:var(--mid)}
+.al-input,.al-select,.cf-input,.cf-select,.cf-textarea{padding:10px 13px;border-radius:10px;background:var(--cream);border:1.5px solid var(--border);font-family:var(--font);font-size:13px;color:var(--ink);outline:none;transition:all .2s;width:100%}
+.al-input:focus,.al-select:focus,.cf-input:focus,.cf-select:focus,.cf-textarea:focus{border-color:var(--sun);background:var(--white)}
+.al-input::placeholder,.cf-input::placeholder,.cf-textarea::placeholder{color:var(--border)}
+.al-select,.cf-select{cursor:pointer;appearance:none}
+.al-email-row{display:flex;gap:8px;margin-bottom:8px}
+.al-email-input{flex:1;padding:12px 14px;border-radius:12px;background:var(--cream);border:1.5px solid var(--border);font-family:var(--font);font-size:13px;color:var(--ink);outline:none;transition:all .2s}
+.al-email-input:focus{border-color:var(--sun)}
+.al-email-input::placeholder{color:var(--border)}
+.btn-create-alerte{background:linear-gradient(135deg,var(--sun),var(--coral));color:var(--white);border:none;cursor:pointer;padding:12px 20px;border-radius:12px;font-family:var(--font);font-size:13px;font-weight:700;white-space:nowrap;transition:all .2s}
+.btn-create-alerte:hover{transform:translateY(-2px)}
+.al-note{font-size:11px;color:var(--mid);text-align:center;margin-top:8px}
+.al-success{display:none;text-align:center;padding:20px 0 8px}
+.al-success.on{display:block}
+.al-success-icon{font-size:48px;margin-bottom:10px;animation:mIn .5s ease}
+.al-success-title{font-family:var(--font-display);font-size:18px;font-weight:900;margin-bottom:6px}
+.al-success-sub{font-size:13px;color:var(--mid);line-height:1.6}
+.cedant-avantages{display:flex;flex-direction:column;gap:8px;margin-bottom:20px}
+.cedant-av{display:flex;align-items:center;gap:10px;padding:11px 14px;background:var(--cream);border-radius:12px;font-size:13px;font-weight:500}
+.cedant-av-icon{font-size:18px}
+.cedant-form{display:flex;flex-direction:column;gap:12px}
+.cf-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.cf-field{display:flex;flex-direction:column;gap:4px}
+.cf-label{font-size:11px;font-weight:700;color:var(--mid)}
+.cf-label .req{color:var(--coral)}
+.cf-textarea{resize:vertical;min-height:72px;line-height:1.6}
+.btn-cedant-submit{background:linear-gradient(135deg,var(--sun),var(--coral));color:var(--white);border:none;cursor:pointer;padding:15px;border-radius:14px;font-family:var(--font);font-size:14px;font-weight:700;box-shadow:0 6px 20px rgba(240,90,78,.3);transition:all .2s;display:flex;align-items:center;justify-content:center;gap:8px;margin-top:4px}
+.btn-cedant-submit:hover{transform:translateY(-2px)}
+.cedant-success{display:none;text-align:center;padding:36px 24px}
+.cedant-success.on{display:block}
+.cedant-success-icon{font-size:56px;margin-bottom:14px;animation:mIn .5s ease}
+.cedant-success-title{font-family:var(--font-display);font-size:20px;font-weight:900;margin-bottom:8px}
+.cedant-success-sub{font-size:13px;color:var(--mid);line-height:1.7;margin-bottom:16px}
+.css-item{display:flex;align-items:center;gap:10px;padding:10px 14px;background:var(--cream);border-radius:10px;font-size:13px;font-weight:500;margin-bottom:8px;text-align:left}
+
+/* COOKIE BANNER */
+#cookie-banner{position:fixed;bottom:0;left:0;right:0;z-index:9000;background:var(--ink);padding:14px 28px;display:flex;align-items:center;justify-content:space-between;gap:14px;border-top:3px solid var(--sun);flex-wrap:wrap}
+.cb-text{font-size:13px;color:rgba(255,255,255,.7);max-width:640px;line-height:1.5}
+.cb-text a{color:var(--sun);text-decoration:none;font-weight:600}
+.cb-btns{display:flex;gap:8px}
+.cb-btn{padding:8px 18px;border-radius:8px;font-family:var(--font);font-size:12px;font-weight:600;cursor:pointer;border:none;transition:all .2s}
+.cb-accept{background:var(--sun);color:var(--ink)}
+.cb-refuse{background:transparent;border:1.5px solid rgba(255,255,255,.25) !important;color:rgba(255,255,255,.6)}
+
+/* FOOTER */
+footer{background:var(--ink);padding:20px 40px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;border-top:1px solid rgba(255,255,255,.08)}
+footer .logo-text{font-family:var(--font-display);font-size:16px;font-weight:900;color:var(--white)}
+footer .logo-text span{color:var(--sun)}
+.footer-links{display:flex;gap:20px;flex-wrap:wrap}
+.footer-links a{color:rgba(255,255,255,.4);font-size:12px;text-decoration:none;transition:color .2s}
+.footer-links a:hover{color:var(--sun)}
+.footer-copy{font-size:12px;color:rgba(255,255,255,.3)}
+
+/* RESPONSIVE */
+@media(max-width:900px){
+  .workspace{grid-template-columns:1fr;padding:16px}
+  .sidebar{position:static}
+  .search-top{grid-template-columns:1fr 1fr}
+  .dc-metrics{grid-template-columns:1fr 1fr}
+  nav{padding:0 16px}
+  .nav-links{display:none}
+  .hero{padding:40px 16px 32px}
+  .stats-strip{grid-template-columns:1fr 1fr}
+  .modal-kpis{grid-template-columns:1fr}
+  .sw-grid{grid-template-columns:1fr}
+  .cf-row{grid-template-columns:1fr}
+}
+</style>
+
+<script>
+/* ================================================================
+   DEALSCANNER — JS dans <head>
+   Toutes les fonctions définies avant le body
+   ================================================================ */
+var _D = { list:[], sort:'score', sect:'' };
+var SRC = {
+  'Fusacq':         'https://www.fusacq.com/reprendre-une-entreprise/annonces-cession-entreprise_fr_',
+  'Bpifrance':      'https://reprise-entreprise.bpifrance.fr/Recherche/Annonces',
+  'CCI France':     'https://www.transentreprise.com/annonces',
+  'Cession PME':    'https://www.cessionpme.com/annonces-cession',
+  'Transentreprise':'https://www.transentreprise.com/annonces',
+  'Le Bon Coin Pro':'https://www.leboncoin.fr/ventes_immobilieres_professionnelles/offres/france/'
+};
+
+function fK(n){ if(!n||isNaN(n)) return '—'; return n>=1000?(n/1000).toFixed(n>=10000?0:1)+' M€':n+' k€'; }
+function eid(id){ return document.getElementById(id); }
+function srt(a){ var b=a.slice(); if(_D.sort==='score') b.sort(function(x,y){return y.score-x.score;}); else if(_D.sort==='price') b.sort(function(x,y){return x.prix-y.prix;}); else if(_D.sort==='ca') b.sort(function(x,y){return y.ca-x.ca;}); return b; }
+function setP(btn,s){ document.querySelectorAll('.s-pill').forEach(function(p){p.classList.remove('active');}); btn.classList.add('active'); _D.sect=s; }
+function doFilterS(s){ _D.sect=s; doSearch(); }
+function setSort(btn,s){ document.querySelectorAll('.s-tab').forEach(function(b){b.classList.remove('active');}); btn.classList.add('active'); _D.sort=s; if(_D.list.length) render(srt(_D.list)); }
+
+function loadAll(){
+  // Charge depuis data/annonces.json (vraies données scrappées)
+  // Fallback sur mock() si le fichier n'est pas disponible
+  fetch('data/annonces.json?v=' + Date.now())
+    .then(function(r){ return r.json(); })
+    .then(function(d){
+      if(!d||!d.length) throw new Error('vide');
+      var n=d.length;
+      var k=eid('kpi-annonces'), b=eid('badge-count');
+      if(k) k.textContent=n; if(b) b.textContent=n;
+      eid('empty').classList.remove('on');
+      render(srt(d));
+    })
+    .catch(function(){
+      // Fallback mock si pas de données réelles
+      var d=mock(), n=d.length;
+      var k=eid('kpi-annonces'), b=eid('badge-count');
+      if(k) k.textContent=n; if(b) b.textContent=n;
+      eid('empty').classList.remove('on');
+      render(srt(d));
+    });
+}
+
+async function doSearch(){
+  var kw=eid('q-kw').value, reg=eid('q-reg').value, bgt=eid('q-bgt').value, ca=eid('q-ca').value;
+  if(!kw&&!reg&&!bgt&&!ca&&!_D.sect){ loadAll(); return; }
+  eid('cards').innerHTML=''; eid('empty').classList.remove('on'); eid('loading').classList.add('on');
+  eid('search-btn').disabled=true; eid('r-count').textContent='Scan en cours...';
+  var steps=['s1','s2','s3','s4'], progs=[20,50,75,98];
+  for(var i=0;i<steps.length;i++){
+    await new Promise(function(r){setTimeout(r,500);});
+    if(i>0) eid(steps[i-1]).className='step-item done';
+    eid(steps[i]).className='step-item active';
+    eid('prog').style.width=progs[i]+'%';
+  }
+  await new Promise(function(r){setTimeout(r,400);});
+  steps.forEach(function(s){eid(s).className='step-item done';}); eid('prog').style.width='100%';
+  try{
+    var r=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:4000,messages:[{role:'user',content:'8 annonces cession entreprise françaises JSON. Secteur:'+(kw||_D.sect||'varié')+' Région:'+(reg||'France')+'. Retourne UNIQUEMENT un tableau JSON: [{"id":"1","titre":"...","secteur":"industrie","secteur_label":"Industrie","region":"...","ville":"...","ca":1000,"ebe":150,"prix":500,"effectif":10,"annee_creation":2010,"date_publication":"il y a 3 jours","source":"Fusacq","score":75,"score_financier":75,"score_valorisation":75,"score_croissance":75,"score_risque":75,"description":"...","points_forts":["p1","p2","p3"],"motif_cession":"...","ca_trend":"up","ca_evolution":"+5% sur 3 ans"}]'}]})});
+    var data=await r.json();
+    var txt=data.content[0].text.split("\n").filter(function(l){return l.indexOf("{")>=0||l.indexOf("[")>=0||l.indexOf("}")>=0||l.indexOf("]")>=0;}).join("\n").trim();
+    _D.list=JSON.parse(txt);
+  }catch(e){ _D.list=mock(); }
+  eid('loading').classList.remove('on'); eid('search-btn').disabled=false; render(srt(_D.list));
+}
+
+function render(list){
+  _D.list=list; var c=eid('cards'); c.innerHTML='';
+  if(!list||!list.length){ eid('empty').classList.add('on'); eid('r-count').textContent='Aucun résultat'; return; }
+  eid('r-count').innerHTML='<span>'+list.length+'</span> dossiers trouvés';
+  var k=eid('kpi-annonces'), b=eid('badge-count');
+  if(k) k.textContent=list.length; if(b) b.textContent=list.length;
+  for(var i=0;i<list.length;i++) c.appendChild(mkCard(list[i],i));
+}
+
+function mkCard(d,n){
+  var div=document.createElement('div');
+  div.className='deal-card';
+  div.style.animationDelay=(n*0.04)+'s';
+  var sc=d.score>=80?'s-excellent':d.score>=60?'s-good':'s-avg';
+  var ti=d.ca_trend==='up'?'↑ ':d.ca_trend==='down'?'↓ ':'— ';
+  var tc=d.ca_trend==='up'?'dc-m-up':d.ca_trend==='down'?'dc-m-down':'';
+  var src=SRC[d.source]||'#';
+  var mar=d.ca>0?Math.round(d.ebe/d.ca*100):0;
+  var mul=d.ebe>0?(d.prix/d.ebe).toFixed(1):'—';
+  var pub=d.date_publication||'Récemment';
+
+  div.innerHTML=''
+    +'<div class="dc-top">'
+    +'<div class="dc-tags">'
+    +'<span class="dc-tag t-'+d.secteur+'">'+d.secteur_label+'</span>'
+    +'<a class="dc-tag t-source" href="'+src+'" target="_blank" rel="noopener" style="text-decoration:none">🔗 '+d.source+'</a>'
+    +'<span class="dc-tag" style="background:#f0f8f0;color:#2a7a40;font-size:9px">📅 '+pub+'</span>'
+    +'</div>'
+    +'<div class="dc-score"><div class="dc-score-num '+sc+'">'+d.score+'</div><div class="dc-score-lbl">DealScore™</div></div>'
+    +'</div>'
+    +'<div class="dc-title">'+d.titre+'</div>'
+    +'<div class="dc-loc">'+d.ville+', '+d.region+' · '+d.annee_creation+' · '+d.effectif+' ETP</div>'
+    +'<div class="dc-metrics">'
+    +'<div class="dc-m"><div class="dc-m-lbl">CA</div><div class="dc-m-val">'+fK(d.ca)+'</div><div class="dc-m-sub '+tc+'">'+ti+d.ca_evolution+'</div></div>'
+    +'<div class="dc-m"><div class="dc-m-lbl">EBE</div><div class="dc-m-val">'+fK(d.ebe)+'</div><div class="dc-m-sub">Marge '+mar+'%</div></div>'
+    +'<div class="dc-m"><div class="dc-m-lbl">Prix</div><div class="dc-m-val dc-prix-val">'+fK(d.prix)+'</div><div class="dc-m-sub">x'+mul+'</div></div>'
+    +'<div class="dc-m"><div class="dc-m-lbl">Effectif</div><div class="dc-m-val">'+d.effectif+' ETP</div></div>'
+    +'</div>'
+    +'<div class="dc-bottom">'
+    +'<div class="dc-bars">'
+    +'<div class="dc-bar-item"><div class="dc-bar-track"><div class="dc-bar-fill" style="width:'+d.score_financier+'%;background:var(--mint)"></div></div><div class="dc-bar-lbl">FIN '+d.score_financier+'</div></div>'
+    +'<div class="dc-bar-item"><div class="dc-bar-track"><div class="dc-bar-fill" style="width:'+d.score_valorisation+'%;background:var(--sun)"></div></div><div class="dc-bar-lbl">VAL '+d.score_valorisation+'</div></div>'
+    +'<div class="dc-bar-item"><div class="dc-bar-track"><div class="dc-bar-fill" style="width:'+d.score_croissance+'%;background:var(--sky)"></div></div><div class="dc-bar-lbl">GRW '+d.score_croissance+'</div></div>'
+    +'<div class="dc-bar-item"><div class="dc-bar-track"><div class="dc-bar-fill" style="width:'+d.score_risque+'%;background:var(--coral)"></div></div><div class="dc-bar-lbl">RSK '+d.score_risque+'</div></div>'
+    +'</div>'
+    +'<div class="dc-actions" id="act-'+n+'"></div>'
+    +'</div>';
+
+  // Boutons créés par DOM — exactement comme test_modal.html
+  var acts=div.querySelector('#act-'+n);
+  var bS=document.createElement('button'); bS.type='button'; bS.className='dc-btn dc-btn-ghost'; bS.textContent='♡ Sauver';
+  bS.addEventListener('click',function(e){ e.stopPropagation(); bS.textContent='♥ Sauvé'; bS.classList.add('saved'); });
+  var bO=document.createElement('button'); bO.type='button'; bO.className='dc-btn dc-btn-main'; bO.textContent='Voir le dossier';
+  (function(idx){ bO.addEventListener('click',function(e){ e.stopPropagation(); openDeal(idx); }); }(n));
+  acts.appendChild(bS); acts.appendChild(bO);
+  return div;
+}
+
+// ── OPEN DEAL ─────────────────────────────────────────────────────────────────
+function openDeal(n){
+  var d=_D.list[n];
+  if(!d){ console.error('openDeal idx='+n+' liste='+_D.list.length); return; }
+  var sc=d.score>=80?'s-excellent':d.score>=60?'s-good':'s-avg';
+  var src=SRC[d.source]||'#';
+  var mar=d.ca>0?Math.round(d.ebe/d.ca*100):0;
+  var mul=d.ebe>0?(d.prix/d.ebe).toFixed(1):'—';
+  var pts=''; (d.points_forts||[]).forEach(function(p){ pts+='<div class="m-point">'+p+'</div>'; });
+
+  eid('modal-body').innerHTML=''
+    +'<div class="modal-hero">'
+    +'<div style="display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap"><span class="dc-tag t-'+d.secteur+'">'+d.secteur_label+'</span><a class="dc-tag t-source" href="'+src+'" target="_blank" style="text-decoration:none">🔗 '+d.source+'</a></div>'
+    +'<div style="font-family:var(--font-display);font-size:22px;font-weight:900;margin-bottom:6px;padding-bottom:16px">'+d.titre+'</div>'
+    +'</div>'
+    +'<div class="modal-kpis">'
+    +'<div class="mkpi"><div class="mkpi-lbl">CA</div><div class="mkpi-val">'+fK(d.ca)+'</div><div class="mkpi-sub">'+d.ca_evolution+'</div></div>'
+    +'<div class="mkpi"><div class="mkpi-lbl">EBE</div><div class="mkpi-val">'+fK(d.ebe)+'</div><div class="mkpi-sub">Marge '+mar+'%</div></div>'
+    +'<div class="mkpi"><div class="mkpi-lbl">Prix</div><div class="mkpi-val gold">'+fK(d.prix)+'</div><div class="mkpi-sub">x'+mul+' EBE</div></div>'
+    +'</div>'
+    +'<div class="modal-content">'
+    +'<div class="m-section-lbl">À propos</div><div class="m-text">'+d.description+'</div>'
+    +'<div class="m-section-lbl">Points forts</div><div class="m-points">'+pts+'</div>'
+    +'<div class="m-section-lbl">Motif</div><div class="m-text">'+d.motif_cession+'</div>'
+    +'<div class="m-section-lbl">DealScore™</div>'
+    +'<div class="score-widget"><div class="sw-header"><span class="sw-title">SCORE GLOBAL</span><div class="sw-score '+sc+'">'+d.score+'<span style="font-size:18px;color:var(--mid)">/100</span></div></div>'
+    +'<div class="sw-grid">'
+    +'<div class="sw-row"><div class="sw-row-top"><span class="sw-row-label">Santé financière</span><span class="sw-row-val" style="color:var(--mint)">'+d.score_financier+'/100</span></div><div class="sw-bar"><div class="sw-fill" style="width:'+d.score_financier+'%;background:var(--mint)"></div></div></div>'
+    +'<div class="sw-row"><div class="sw-row-top"><span class="sw-row-label">Valorisation</span><span class="sw-row-val" style="color:var(--sun)">'+d.score_valorisation+'/100</span></div><div class="sw-bar"><div class="sw-fill" style="width:'+d.score_valorisation+'%;background:var(--sun)"></div></div></div>'
+    +'<div class="sw-row"><div class="sw-row-top"><span class="sw-row-label">Croissance</span><span class="sw-row-val" style="color:var(--sky)">'+d.score_croissance+'/100</span></div><div class="sw-bar"><div class="sw-fill" style="width:'+d.score_croissance+'%;background:var(--sky)"></div></div></div>'
+    +'<div class="sw-row"><div class="sw-row-top"><span class="sw-row-label">Risque</span><span class="sw-row-val" style="color:var(--coral)">'+d.score_risque+'/100</span></div><div class="sw-bar"><div class="sw-fill" style="width:'+d.score_risque+'%;background:var(--coral)"></div></div></div>'
+    +'</div></div>'
+    +'<div class="ai-box"><div class="ai-box-header"><span class="ai-chip">✨ Analyse IA</span></div><div id="ai-txt" class="ai-box-text ai-loading">Analyse en cours...</div></div>'
+    +'<div class="modal-ctas"><button type="button" class="m-cta m-cta-main">📩 Contacter le cédant</button><a class="m-cta m-cta-ghost" href="'+src+'" target="_blank" style="text-decoration:none">🔗 Voir sur '+d.source+'</a></div>'
+    +'</div>';
+
+  // Affiche la modal
+  var mo=eid('modal-overlay');
+  mo.style.display='flex';
+  genAI(d);
+}
+
+function closeModal(e){ if(!e||e.target===eid('modal-overlay')) eid('modal-overlay').style.display='none'; }
+function closeModal2(){ eid('modal-overlay').style.display='none'; }
+
+async function genAI(d){
+  var el=eid('ai-txt'); if(!el) return;
+  try{
+    var r=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:260,messages:[{role:'user',content:'DAF M&A 3 phrases: '+d.titre+' CA '+d.ca+'k EBE '+d.ebe+'k Prix '+d.prix+'k x'+(d.prix/d.ebe).toFixed(1)+' EBE '+d.ca_evolution+'. Verdict.'}]})});
+    var data=await r.json(); el.textContent=data.content[0].text; el.classList.remove('ai-loading');
+  }catch(e){ el.textContent='Multiple cohérent. Vérifier récurrence CA avant engagement.'; el.classList.remove('ai-loading'); }
+}
+
+function openAlertes(){ eid('overlay-alerte').classList.add('on'); }
+function closeAlertes(){ eid('overlay-alerte').classList.remove('on'); setTimeout(function(){ eid('al-form-area').style.display='block'; eid('al-success').classList.remove('on'); },400); }
+function toggleAlChip(e){ e.classList.toggle('on'); }
+function submitAlerte(){ var em=eid('al-email').value; if(!em||em.indexOf('@')<0){ eid('al-email').style.borderColor='var(--coral)'; return; } eid('al-form-area').style.display='none'; eid('al-success').classList.add('on'); }
+function openCedant(e){ e.preventDefault(); eid('overlay-cedant').classList.add('on'); }
+function closeCedant(){ eid('overlay-cedant').classList.remove('on'); setTimeout(function(){ eid('cedant-form-area').style.display='block'; eid('cedant-success').classList.remove('on'); },400); }
+function submitCedant(){ var n=eid('cf-nom').value,em=eid('cf-email').value; if(!n){ eid('cf-nom').style.borderColor='var(--coral)'; return; } if(!em||em.indexOf('@')<0){ eid('cf-email').style.borderColor='var(--coral)'; return; } eid('cedant-form-area').style.display='none'; eid('cedant-success').classList.add('on'); }
+function acceptCookies(){ try{localStorage.setItem('ds-c','1');}catch(x){} eid('cookie-banner').style.display='none'; }
+function refuseCookies(){ try{localStorage.setItem('ds-c','0');}catch(x){} eid('cookie-banner').style.display='none'; }
+</script>
+</head>
+<body>
+
+<nav>
+  <a class="logo" href="#">
+    <div class="logo-mark">🔍</div>
+    <div class="logo-text">Deal<span>Scanner</span></div>
+  </a>
+  <ul class="nav-links">
+    <li><a href="#" class="active">Annonces</a></li>
+    <li><a href="#" class="ced" onclick="openCedant(event)">🏢 Céder mon entreprise</a></li>
+  </ul>
+  <div class="nav-right">
+    <div class="nav-badge"><div class="live-dot"></div><span id="badge-count">50</span> annonces</div>
+    <button class="btn-alerte" onclick="openAlertes()">🔔 Créer une alerte</button>
+  </div>
+</nav>
+
+<section class="hero">
+  <div class="blob blob-1"></div>
+  <div class="blob blob-2"></div>
+  <div class="hero-inner">
+    <div class="hero-pills">
+      <div class="pill pill-1">🏭 28 sources agrégées</div>
+      <div class="pill pill-2">✅ Mis à jour toutes les 4h</div>
+      <div class="pill pill-3">🧠 DealScore™ IA</div>
+    </div>
+    <h1>Trouvez votre<br>prochaine <span class="hl">entreprise</span><br>en 30 secondes.</h1>
+    <p class="hero-sub">Toutes les annonces de cession françaises réunies en un seul endroit, analysées et notées par IA.</p>
+    <div class="search-card">
+      <div class="search-top">
+        <div class="s-cell"><div class="s-lbl">🔎 Secteur / Mots-clés</div><input class="s-in" id="q-kw" type="text" placeholder="Boulangerie, SaaS, industrie..."></div>
+        <div class="s-cell"><div class="s-lbl">📍 Région</div><select class="s-sel" id="q-reg"><option value="">Toute la France</option><option>Île-de-France</option><option>Auvergne-Rhône-Alpes</option><option>Provence-Alpes-Côte d'Azur</option><option>Occitanie</option><option>Nouvelle-Aquitaine</option><option>Hauts-de-France</option><option>Grand Est</option><option>Bretagne</option><option>Normandie</option><option>Pays de la Loire</option></select></div>
+        <div class="s-cell"><div class="s-lbl">💰 Budget max</div><select class="s-sel" id="q-bgt"><option value="">Sans limite</option><option value="100">- 100 k€</option><option value="500">- 500 k€</option><option value="1000">- 1 M€</option><option value="5000">- 5 M€</option></select></div>
+        <div class="s-cell" style="border-right:none"><div class="s-lbl">📈 CA minimum</div><select class="s-sel" id="q-ca"><option value="">Tous</option><option value="100">100 k€+</option><option value="500">500 k€+</option><option value="1000">1 M€+</option></select></div>
+      </div>
+      <div class="search-bot">
+        <div class="s-pills">
+          <div class="s-pill active" onclick="setP(this,'')">Tous</div>
+          <div class="s-pill" onclick="setP(this,'industrie')">🏭 Industrie</div>
+          <div class="s-pill" onclick="setP(this,'services')">💼 Services</div>
+          <div class="s-pill" onclick="setP(this,'commerce')">🛍️ Commerce</div>
+          <div class="s-pill" onclick="setP(this,'tech')">💻 Tech</div>
+          <div class="s-pill" onclick="setP(this,'sante')">⚕️ Santé</div>
+          <div class="s-pill" onclick="setP(this,'restauration')">🍽️ Restauration</div>
+        </div>
+        <button class="btn-scan" id="search-btn" onclick="doSearch()">🚀 Scanner les annonces</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="stats-strip">
+  <div class="stat-cell"><span class="stat-emoji">📋</span><div class="stat-n"><span class="acc" id="kpi-annonces">50</span></div><div class="stat-l">Annonces actives</div></div>
+  <div class="stat-cell"><span class="stat-emoji">🌐</span><div class="stat-n"><span class="acc">28</span></div><div class="stat-l">Sources agrégées</div></div>
+  <div class="stat-cell"><span class="stat-emoji">💶</span><div class="stat-n">2,<span class="acc">4</span> M€</div><div class="stat-l">CA moyen</div></div>
+  <div class="stat-cell"><span class="stat-emoji">👥</span><div class="stat-n">3 <span class="acc">200</span></div><div class="stat-l">Repreneurs actifs</div></div>
+</div>
+
+<div class="workspace">
+  <aside class="sidebar">
+    <div class="filter-card">
+      <div class="filter-title">Secteur</div>
+      <div class="f-row" onclick="doFilterS('industrie')"><span class="f-name">🏭 Industrie & BTP</span><span class="f-cnt">2 840</span></div>
+      <div class="f-row" onclick="doFilterS('services')"><span class="f-name">💼 Services B2B</span><span class="f-cnt">3 120</span></div>
+      <div class="f-row" onclick="doFilterS('commerce')"><span class="f-name">🛍️ Commerce</span><span class="f-cnt">1 980</span></div>
+      <div class="f-row" onclick="doFilterS('tech')"><span class="f-name">💻 Tech & Digital</span><span class="f-cnt">890</span></div>
+      <div class="f-row" onclick="doFilterS('sante')"><span class="f-name">⚕️ Santé</span><span class="f-cnt">640</span></div>
+      <div class="f-row" onclick="doFilterS('restauration')"><span class="f-name">🍽️ Restauration</span><span class="f-cnt">1 240</span></div>
+    </div>
+    <div class="filter-card">
+      <div class="filter-title">CA (k€)</div>
+      <div class="range-pair"><input class="r-in" type="number" placeholder="Min" id="ca-min"><input class="r-in" type="number" placeholder="Max" id="ca-max"></div>
+      <button class="btn-filter" onclick="doSearch()">Appliquer</button>
+    </div>
+    <div class="filter-card">
+      <div class="filter-title">DealScore™</div>
+      <div class="f-row"><span class="f-name" style="color:var(--mint)">● Excellent (80+)</span><span class="f-cnt">1 420</span></div>
+      <div class="f-row"><span class="f-name" style="color:var(--sun)">● Bon (60–80)</span><span class="f-cnt">3 840</span></div>
+      <div class="f-row"><span class="f-name" style="color:var(--mid)">● À étudier</span><span class="f-cnt">7 587</span></div>
+    </div>
+    <div class="filter-card">
+      <div class="filter-title">Source</div>
+      <div class="f-row"><span class="f-name">Fusacq</span><span class="f-cnt">3 240</span></div>
+      <div class="f-row"><span class="f-name">CCI France</span><span class="f-cnt">2 100</span></div>
+      <div class="f-row"><span class="f-name">Bpifrance</span><span class="f-cnt">980</span></div>
+      <div class="f-row"><span class="f-name">Cession PME</span><span class="f-cnt">1 850</span></div>
+    </div>
+  </aside>
+  <div>
+    <div class="results-bar">
+      <div class="r-count" id="r-count">Chargement...</div>
+      <div class="sort-tabs">
+        <button class="s-tab active" onclick="setSort(this,'score')">⭐ DealScore™</button>
+        <button class="s-tab" onclick="setSort(this,'price')">💰 Prix ↑</button>
+        <button class="s-tab" onclick="setSort(this,'ca')">📈 CA ↓</button>
+      </div>
+    </div>
+    <div class="loading-wrap" id="loading">
+      <div class="loading-card">
+        <div class="loading-top"><div class="spinner"></div><div><div class="loading-title">Scan en cours... 🔍</div></div></div>
+        <div class="steps-list">
+          <div class="step-item" id="s1"><span class="step-icon">🌐</span><span class="step-text">Connexion aux sources</span></div>
+          <div class="step-item" id="s2"><span class="step-icon">⚙️</span><span class="step-text">Normalisation</span></div>
+          <div class="step-item" id="s3"><span class="step-icon">🧹</span><span class="step-text">Déduplication</span></div>
+          <div class="step-item" id="s4"><span class="step-icon">🧠</span><span class="step-text">Calcul DealScore™</span></div>
+        </div>
+        <div class="progress-bar"><div class="progress-fill" id="prog" style="width:0%"></div></div>
+      </div>
+    </div>
+    <div class="empty-wrap" id="empty"><div class="empty-illus">🏢</div><div class="empty-title">Prêt à trouver votre deal ?</div><div class="empty-sub">Entrez vos critères et cliquez sur Scanner</div></div>
+    <div id="cards"></div>
+  </div>
+</div>
+
+<!-- MODAL DOSSIER -->
+<div id="modal-overlay" onclick="closeModal(event)" style="display:none;position:fixed;inset:0;background:rgba(26,23,20,.65);backdrop-filter:blur(10px);z-index:9999;align-items:center;justify-content:center;padding:20px">
+  <div class="modal-box">
+    <button type="button" class="modal-close-btn" onclick="closeModal2()">✕</button>
+    <div id="modal-body"></div>
+  </div>
+</div>
+
+<!-- ALERTES EMAIL -->
+<div class="overlay" id="overlay-alerte" onclick="if(event.target===this)closeAlertes()">
+  <div class="modal-alerte">
+    <div class="modal-alerte-header">
+      <div class="close-x" onclick="closeAlertes()">✕</div>
+      <div class="alerte-icon">🔔</div>
+      <div class="alerte-title">Créer une alerte email</div>
+      <div class="alerte-sub">Recevez immédiatement les nouvelles annonces qui correspondent à vos critères.</div>
+    </div>
+    <div class="modal-alerte-body">
+      <div id="al-form-area">
+        <div class="al-section">Secteur</div>
+        <div class="al-chips"><div class="al-chip on" onclick="toggleAlChip(this)">🔎 Tous</div><div class="al-chip" onclick="toggleAlChip(this)">🏭 Industrie</div><div class="al-chip" onclick="toggleAlChip(this)">💼 Services</div><div class="al-chip" onclick="toggleAlChip(this)">💻 Tech</div><div class="al-chip" onclick="toggleAlChip(this)">⚕️ Santé</div></div>
+        <div class="al-section">Critères</div>
+        <div class="al-row"><div class="al-field"><div class="al-label">Budget max</div><select class="al-select"><option>Sans limite</option><option>- 500 k€</option><option>- 1 M€</option><option>- 5 M€</option></select></div><div class="al-field"><div class="al-label">Région</div><select class="al-select"><option>Toute la France</option><option>Île-de-France</option><option>Auvergne-Rhône-Alpes</option><option>Bretagne</option><option>Normandie</option></select></div></div>
+        <div class="al-section">Votre email</div>
+        <div class="al-email-row"><input class="al-email-input" type="email" id="al-email" placeholder="votre@email.fr"><button type="button" class="btn-create-alerte" onclick="submitAlerte()">🔔 Créer</button></div>
+        <div class="al-note">🔒 Aucun spam. Désabonnement en 1 clic.</div>
+      </div>
+      <div class="al-success" id="al-success">
+        <div class="al-success-icon">🎉</div>
+        <div class="al-success-title">Alerte créée !</div>
+        <div class="al-success-sub">Vous recevrez un email dès qu'une annonce correspond à vos critères.</div>
+        <button type="button" onclick="closeAlertes()" style="margin-top:16px;background:var(--sun);color:white;border:none;padding:10px 24px;border-radius:10px;font-family:var(--font);font-size:13px;font-weight:700;cursor:pointer">Fermer ✓</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- CÉDANT -->
+<div class="overlay" id="overlay-cedant" onclick="if(event.target===this)closeCedant()">
+  <div class="modal-cedant">
+    <div class="cedant-hero">
+      <div class="cedant-close" onclick="closeCedant()">✕</div>
+      <div class="cedant-badge">🏢 Espace Cédant</div>
+      <div class="cedant-title">Cédez votre entreprise<br>aux <span>bons repreneurs</span></div>
+      <div class="cedant-sub">3 200 repreneurs qualifiés. DealScore™ offert. Accompagnement Expert-Comptable DAF.</div>
+    </div>
+    <div class="cedant-body">
+      <div id="cedant-form-area">
+        <div class="cedant-avantages">
+          <div class="cedant-av"><span class="cedant-av-icon">🎯</span>Repreneurs vérifiés avec budget confirmé</div>
+          <div class="cedant-av"><span class="cedant-av-icon">🔒</span>Confidentialité totale</div>
+          <div class="cedant-av"><span class="cedant-av-icon">📊</span>DealScore™ et valorisation offerts sous 24h</div>
+          <div class="cedant-av"><span class="cedant-av-icon">🤝</span>Accompagnement Julien — DAF/EC 17 ans</div>
+        </div>
+        <div class="cedant-form">
+          <div class="cf-row"><div class="cf-field"><div class="cf-label">Prénom <span class="req">*</span></div><input class="cf-input" type="text" placeholder="Prénom" id="cf-prenom"></div><div class="cf-field"><div class="cf-label">Nom <span class="req">*</span></div><input class="cf-input" type="text" placeholder="Nom" id="cf-nom"></div></div>
+          <div class="cf-field"><div class="cf-label">Email <span class="req">*</span></div><input class="cf-input" type="email" placeholder="vous@entreprise.fr" id="cf-email"></div>
+          <div class="cf-row"><div class="cf-field"><div class="cf-label">Secteur</div><select class="cf-select"><option value="">Sélectionner</option><option>🏭 Industrie</option><option>💼 Services</option><option>💻 Tech</option><option>⚕️ Santé</option><option>🍽️ Restauration</option></select></div><div class="cf-field"><div class="cf-label">CA estimé</div><select class="cf-select"><option value="">Sélectionner</option><option>- 500 k€</option><option>500 k€ – 1 M€</option><option>1 M€ – 5 M€</option><option>+ 5 M€</option></select></div></div>
+          <div class="cf-field"><div class="cf-label">Message</div><textarea class="cf-textarea" placeholder="Décrivez votre entreprise et votre projet..."></textarea></div>
+          <button type="button" class="btn-cedant-submit" onclick="submitCedant()">🚀 Envoyer — Réponse sous 24h</button>
+          <div style="font-size:11px;color:var(--mid);text-align:center;margin-top:4px">🔒 Données confidentielles</div>
+        </div>
+      </div>
+      <div class="cedant-success" id="cedant-success">
+        <div class="cedant-success-icon">🎉</div>
+        <div class="cedant-success-title">Dossier reçu !</div>
+        <div class="cedant-success-sub">Julien vous contacte sous 24h avec votre <strong>DealScore™</strong>.</div>
+        <div class="css-item">📧 Email de confirmation envoyé</div>
+        <div class="css-item">📊 DealScore™ calculé sous 24h</div>
+        <div class="css-item">📞 Appel avec Julien</div>
+        <button type="button" onclick="closeCedant()" style="background:var(--sun);color:white;border:none;padding:12px 28px;border-radius:12px;font-family:var(--font);font-size:14px;font-weight:700;cursor:pointer">Parfait ✓</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- COOKIE BANNER -->
+<div id="cookie-banner">
+  <div class="cb-text">🍪 DealScanner utilise des cookies essentiels. <a href="cookies.html">En savoir plus</a></div>
+  <div class="cb-btns"><button type="button" class="cb-btn cb-refuse" onclick="refuseCookies()">Refuser</button><button type="button" class="cb-btn cb-accept" onclick="acceptCookies()">Accepter ✓</button></div>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <div class="logo-text">Deal<span>Scanner</span></div>
+  <div class="footer-links"><a href="cgu.html">CGU</a><a href="confidentialite.html">Confidentialité</a><a href="cookies.html">Cookies</a><span style="color:rgba(255,255,255,.3);font-size:12px">contact@dealscanner.fr</span></div>
+  <div class="footer-copy">© 2025 DealScanner SAS</div>
+</footer>
+
+<script>
+function mock(){
+  return [
+    {id:'m1',titre:'Sous-traitant usinage CNC aéronautique',secteur:'industrie',secteur_label:'Industrie',region:'Pays de la Loire',ville:'Nantes',ca:4200,ebe:680,prix:2100,effectif:18,annee_creation:2003,date_publication:'il y a 2 jours',source:'Fusacq',score:87,score_financier:90,score_valorisation:82,score_croissance:85,score_risque:91,description:'Atelier usinage 5 axes certifié EN9100. Clientèle aéronautique et défense fidélisée.',points_forts:['Certification EN9100','Carnet 18 mois','Machines récentes'],motif_cession:'Retraite fondateur',ca_trend:'up',ca_evolution:'+14% sur 3 ans'},
+    {id:'m2',titre:'SaaS comptabilité PME — 320 clients',secteur:'tech',secteur_label:'Tech & Digital',region:'Auvergne-Rhône-Alpes',ville:'Grenoble',ca:890,ebe:240,prix:1800,effectif:7,annee_creation:2016,date_publication:'il y a 5 jours',source:'Bpifrance',score:84,score_financier:78,score_valorisation:70,score_croissance:95,score_risque:88,description:'Editeur SaaS comptabilité PME. ARR 890k€, churn 4%, NPS 68. Croissance +38%/an.',points_forts:['Revenus récurrents','Faible churn','Scalable'],motif_cession:'Besoin partenaire',ca_trend:'up',ca_evolution:'+38% sur 3 ans'},
+    {id:'m3',titre:'Cabinet recrutement IT & Digital',secteur:'services',secteur_label:'Services B2B',region:'Île-de-France',ville:'Paris 8e',ca:1800,ebe:310,prix:750,effectif:9,annee_creation:2011,date_publication:'il y a 1 semaine',source:'CCI France',score:74,score_financier:78,score_valorisation:70,score_croissance:76,score_risque:72,description:'Cabinet spécialisé recrutement tech. 14 000 candidats qualifiés. Grands comptes.',points_forts:['Niche porteur','Grands comptes','Marges 17%'],motif_cession:'Reconversion',ca_trend:'stable',ca_evolution:'+4% sur 3 ans'},
+    {id:'m4',titre:'Boulangerie artisanale — 2 boutiques centre-ville',secteur:'restauration',secteur_label:'Restauration',region:'Provence-Alpes-Côte Azur',ville:'Aix-en-Provence',ca:720,ebe:145,prix:420,effectif:8,annee_creation:2008,date_publication:'il y a 3 jours',source:'CCI France',score:68,score_financier:72,score_valorisation:65,score_croissance:60,score_risque:75,description:'Boulangerie artisanale avec laboratoire propre et 2 boutiques en centre-ville.',points_forts:['2 emplacements prime','Recettes exclusives','Clientèle fidèle'],motif_cession:'Retraite',ca_trend:'stable',ca_evolution:'+2% sur 3 ans'},
+    {id:'m5',titre:'Agence digitale SEO & Social Media',secteur:'tech',secteur_label:'Tech & Digital',region:'Occitanie',ville:'Toulouse',ca:650,ebe:160,prix:480,effectif:6,annee_creation:2014,date_publication:'il y a 4 jours',source:'Cession PME',score:77,score_financier:75,score_valorisation:78,score_croissance:80,score_risque:76,description:'Agence SEO et réseaux sociaux. 45 clients, contrats mensuels récurrents. Equipe stable.',points_forts:['Contrats récurrents','Equipe autonome','Notoriété locale'],motif_cession:'Reconversion',ca_trend:'up',ca_evolution:'+18% sur 3 ans'},
+    {id:'m6',titre:'Pharmacie indépendante avec parapharmacie',secteur:'sante',secteur_label:'Santé',region:'Bretagne',ville:'Rennes',ca:2400,ebe:360,prix:1200,effectif:6,annee_creation:2001,date_publication:'il y a 6 jours',source:'Fusacq',score:82,score_financier:85,score_valorisation:80,score_croissance:72,score_risque:88,description:'Officine indépendante en quartier résidentiel. Clientèle fidèle, ordonnances récurrentes.',points_forts:['Clientèle fidèle','Parapharmacie rentable','Emplacement protégé'],motif_cession:'Retraite titulaire',ca_trend:'stable',ca_evolution:'+5% sur 3 ans'},
+    {id:'m7',titre:'Transport frigorifique — flotte 12 véhicules',secteur:'transport',secteur_label:'Transport',region:'Nouvelle-Aquitaine',ville:'Bordeaux',ca:3200,ebe:420,prix:1600,effectif:16,annee_creation:2005,date_publication:'il y a 2 semaines',source:'CCI France',score:71,score_financier:74,score_valorisation:68,score_croissance:65,score_risque:76,description:'Transport frigorifique interrégional. 12 véhicules récents, agréments sanitaires à jour.',points_forts:['Flotte récente','Agréments sanitaires','Clients GMS'],motif_cession:'Retraite',ca_trend:'stable',ca_evolution:'+3% sur 3 ans'},
+    {id:'m8',titre:'Cabinet expertise comptable — 180 dossiers PME',secteur:'services',secteur_label:'Services B2B',region:'Grand Est',ville:'Strasbourg',ca:980,ebe:290,prix:870,effectif:7,annee_creation:2003,date_publication:'il y a 1 jour',source:'Bpifrance',score:89,score_financier:92,score_valorisation:87,score_croissance:78,score_risque:94,description:'Cabinet EC indépendant, 180 dossiers PME. Fidélité 96%. 4 collaborateurs en place.',points_forts:['Fidélité 96%','Equipe en place','Honoraires récurrents'],motif_cession:'Retraite dirigeant',ca_trend:'up',ca_evolution:'+8% sur 3 ans'},
+    {id:'m9',titre:'E-commerce décoration maison — 2M visites/mois',secteur:'commerce',secteur_label:'Commerce',region:'Île-de-France',ville:'Paris 11e',ca:1450,ebe:195,prix:680,effectif:5,annee_creation:2018,date_publication:'il y a 4 jours',source:'Cession PME',score:72,score_financier:70,score_valorisation:74,score_croissance:82,score_risque:65,description:'E-commerce décoration intérieure. 2M visites/mois, 4200 références, trafic organique dominant.',points_forts:['Trafic organique fort','Marque reconnue','Structure lean'],motif_cession:'Nouveau projet',ca_trend:'up',ca_evolution:'+24% sur 3 ans'},
+    {id:'m10',titre:'Clinique vétérinaire — 3 praticiens salariés',secteur:'sante',secteur_label:'Santé',region:'Normandie',ville:'Caen',ca:1850,ebe:320,prix:1400,effectif:8,annee_creation:2007,date_publication:'il y a 3 jours',source:'Fusacq',score:80,score_financier:83,score_valorisation:77,score_croissance:75,score_risque:85,description:'Clinique vétérinaire toutes espèces, plateau technique complet. 3 praticiens salariés.',points_forts:['Plateau complet','3 vétérinaires salariés','Zone peu concurrentielle'],motif_cession:'Retraite fondateur',ca_trend:'up',ca_evolution:'+11% sur 3 ans'},
+    {id:'m11',titre:'Constructeur maisons individuelles PACA',secteur:'industrie',secteur_label:'Industrie BTP',region:'Provence-Alpes-Côte Azur',ville:'Marseille',ca:5800,ebe:640,prix:2400,effectif:22,annee_creation:2000,date_publication:'il y a 1 semaine',source:'CCI France',score:69,score_financier:72,score_valorisation:66,score_croissance:62,score_risque:74,description:'Constructeur régional sous CCMI. 80 maisons/an, agrément NF Habitat, équipe en place.',points_forts:['NF Habitat','80 maisons/an','Réseau fournisseurs'],motif_cession:'Cession progressive',ca_trend:'down',ca_evolution:'-6% sur 3 ans'},
+    {id:'m12',titre:'Pressing industriel B2B hôtellerie',secteur:'services',secteur_label:'Services B2B',region:'Hauts-de-France',ville:'Lille',ca:1100,ebe:185,prix:550,effectif:14,annee_creation:1998,date_publication:'il y a 10 jours',source:'Transentreprise',score:65,score_financier:68,score_valorisation:62,score_croissance:55,score_risque:70,description:'Pressing industriel hôtellerie et restauration. Contrats pluriannuels avec 3 chaînes.',points_forts:['Contrats pluriannuels','Equipements récents','Zone protégée'],motif_cession:'Raisons familiales',ca_trend:'stable',ca_evolution:'+1% sur 3 ans'},
+    {id:'m13',titre:'Franchise restauration rapide — 3 points de vente',secteur:'restauration',secteur_label:'Restauration',region:'Île-de-France',ville:'Versailles',ca:1920,ebe:280,prix:950,effectif:24,annee_creation:2012,date_publication:'il y a 8 jours',source:'Fusacq',score:73,score_financier:76,score_valorisation:70,score_croissance:68,score_risque:78,description:'Franchisé restauration rapide avec 3 restaurants en IDF. Contrats de franchise renouvelés.',points_forts:['3 emplacements','Marque nationale','Equipes formées'],motif_cession:'Diversification',ca_trend:'up',ca_evolution:'+9% sur 3 ans'},
+    {id:'m14',titre:'Bureau études techniques — bureau thermique',secteur:'services',secteur_label:'Services B2B',region:'Auvergne-Rhône-Alpes',ville:'Lyon',ca:780,ebe:195,prix:580,effectif:8,annee_creation:2009,date_publication:'il y a 5 jours',source:'Bpifrance',score:79,score_financier:82,score_valorisation:76,score_croissance:74,score_risque:83,description:'Bureau études spécialisé thermique et fluides. Clients promoteurs et collectivités.',points_forts:['Certifications RGE','Clients fidèles','Carnet solide'],motif_cession:'Départ retraite',ca_trend:'up',ca_evolution:'+12% sur 3 ans'},
+    {id:'m15',titre:'Imprimerie offset et numérique B2B',secteur:'industrie',secteur_label:'Industrie',region:'Occitanie',ville:'Montpellier',ca:2100,ebe:280,prix:840,effectif:13,annee_creation:2002,date_publication:'il y a 12 jours',source:'CCI France',score:62,score_financier:65,score_valorisation:60,score_croissance:52,score_risque:68,description:'Imprimerie offset et numérique. Clients fidèles BtoB. Parc machines récent 2021.',points_forts:['Machines récentes','Clients BtoB stables','Savoir-faire 20 ans'],motif_cession:'Retraite',ca_trend:'down',ca_evolution:'-4% sur 3 ans'},
+    {id:'m16',titre:'Auto-école — 2 centres de formation',secteur:'services',secteur_label:'Services',region:'Bretagne',ville:'Brest',ca:490,ebe:110,prix:320,effectif:6,annee_creation:2010,date_publication:'il y a 7 jours',source:'CCI France',score:70,score_financier:73,score_valorisation:68,score_croissance:65,score_risque:74,description:'Auto-école avec 2 centres. Agréments à jour, simulateurs récents, 400 élèves/an.',points_forts:['2 centres','Agréments valides','Simulateurs 2022'],motif_cession:'Mutation professionnelle',ca_trend:'stable',ca_evolution:'+3% sur 3 ans'},
+    {id:'m17',titre:'Epicerie fine et traiteur — Paris centre',secteur:'commerce',secteur_label:'Commerce',region:'Île-de-France',ville:'Paris 6e',ca:860,ebe:145,prix:480,effectif:5,annee_creation:2015,date_publication:'il y a 2 jours',source:'Fusacq',score:71,score_financier:74,score_valorisation:68,score_croissance:66,score_risque:75,description:'Epicerie fine avec atelier traiteur. Emplacement Paris 6e, clientèle aisée fidèle.',points_forts:['Emplacement exceptionnel','Clientèle aisée','Traiteur événementiel'],motif_cession:'Projet personnel',ca_trend:'up',ca_evolution:'+7% sur 3 ans'},
+    {id:'m18',titre:'Camping 4 étoiles — 180 emplacements',secteur:'restauration',secteur_label:'Tourisme',region:'Nouvelle-Aquitaine',ville:'Arcachon',ca:1650,ebe:490,prix:3200,effectif:12,annee_creation:1985,date_publication:'il y a 3 semaines',source:'Transentreprise',score:76,score_financier:80,score_valorisation:72,score_croissance:70,score_risque:82,description:'Camping 4 étoiles en bord de bassin. 180 emplacements, chalets, piscine. Ouverture 9 mois.',points_forts:['Emplacement premium','Taux occupation 85%','Chalets à fort rendement'],motif_cession:'Succession familiale',ca_trend:'up',ca_evolution:'+15% sur 3 ans'},
+    {id:'m19',titre:'Société nettoyage industriel — 45 clients',secteur:'services',secteur_label:'Services B2B',region:'Hauts-de-France',ville:'Roubaix',ca:2300,ebe:195,prix:580,effectif:42,annee_creation:2006,date_publication:'il y a 6 jours',source:'Cession PME',score:60,score_financier:63,score_valorisation:58,score_croissance:55,score_risque:64,description:'Société nettoyage industriel et tertiaire. 45 clients sous contrat, équipe de 42 agents.',points_forts:['Contrats pluriannuels','Equipe formée','Certifications ISO'],motif_cession:'Retraite',ca_trend:'stable',ca_evolution:'+2% sur 3 ans'},
+    {id:'m20',titre:'Laboratoire analyses médicales — 3 sites',secteur:'sante',secteur_label:'Santé',region:'Grand Est',ville:'Nancy',ca:4800,ebe:960,prix:4200,effectif:28,annee_creation:1999,date_publication:'il y a 4 jours',source:'Fusacq',score:88,score_financier:91,score_valorisation:85,score_croissance:80,score_risque:92,description:'Laboratoire indépendant analyses biologiques. 3 sites, accréditation COFRAC, forte patientèle.',points_forts:['Accréditation COFRAC','3 sites complémentaires','Patientèle fidèle'],motif_cession:'Regroupement familial',ca_trend:'up',ca_evolution:'+10% sur 3 ans'},
+    {id:'m21',titre:'Agence immobilière — 2 agences + transaction',secteur:'services',secteur_label:'Services',region:'Provence-Alpes-Côte Azur',ville:'Nice',ca:920,ebe:210,prix:650,effectif:8,annee_creation:2007,date_publication:'il y a 5 jours',source:'CCI France',score:74,score_financier:77,score_valorisation:72,score_croissance:70,score_risque:78,description:'Agence immobilière 2 enseignes. Transaction et gestion locative. Secteur PACA prisé.',points_forts:['2 agences','Gestion locative récurrente','Marché porteur PACA'],motif_cession:'Départ retraite',ca_trend:'up',ca_evolution:'+8% sur 3 ans'},
+    {id:'m22',titre:'Menuiserie aluminium-PVC — marchés publics',secteur:'industrie',secteur_label:'Industrie BTP',region:'Pays de la Loire',ville:'Le Mans',ca:3400,ebe:408,prix:1500,effectif:19,annee_creation:2001,date_publication:'il y a 9 jours',source:'Transentreprise',score:75,score_financier:78,score_valorisation:73,score_croissance:68,score_risque:80,description:'Menuiserie aluminium-PVC. Marchés publics et privés. Equipe technique qualifiée.',points_forts:['Marchés publics','Equipe expérimentée','Machines CNC récentes'],motif_cession:'Retraite',ca_trend:'stable',ca_evolution:'+5% sur 3 ans'},
+    {id:'m23',titre:'Centre de bien-être — spa et soins',secteur:'sante',secteur_label:'Bien-être',region:'Bretagne',ville:'Saint-Malo',ca:580,ebe:130,prix:390,effectif:7,annee_creation:2013,date_publication:'il y a 3 jours',source:'Cession PME',score:69,score_financier:72,score_valorisation:67,score_croissance:64,score_risque:72,description:'Centre bien-être avec spa, soins esthétiques et massages. Clientèle touristique et locale.',points_forts:['Spa privatif','Clientèle mixte','Zone touristique'],motif_cession:'Reconversion',ca_trend:'up',ca_evolution:'+16% sur 3 ans'},
+    {id:'m24',titre:'Grossiste fournitures bureau — clients PME',secteur:'commerce',secteur_label:'Commerce',region:'Auvergne-Rhône-Alpes',ville:'Clermont-Ferrand',ca:4200,ebe:378,prix:1260,effectif:11,annee_creation:1997,date_publication:'il y a 2 semaines',source:'Fusacq',score:66,score_financier:68,score_valorisation:64,score_croissance:58,score_risque:70,description:'Grossiste fournitures bureau. 380 clients PME sous compte. Livraison J+1 région.',points_forts:['380 clients fidèles','Logistique propre','Contrats cadres'],motif_cession:'Succession',ca_trend:'down',ca_evolution:'-3% sur 3 ans'},
+    {id:'m25',titre:'Salle de sport premium — 800 abonnés',secteur:'sante',secteur_label:'Bien-être',region:'Île-de-France',ville:'Boulogne-Billancourt',ca:740,ebe:185,prix:620,effectif:8,annee_creation:2017,date_publication:'il y a 1 jour',source:'Bpifrance',score:78,score_financier:80,score_valorisation:76,score_croissance:82,score_risque:76,description:'Salle fitness premium 800 abonnés. Equipements haut de gamme. Zone résidentielle aisée.',points_forts:['800 abonnés stables','Equipements premium','Emplacement aisé'],motif_cession:'Projet immobilier',ca_trend:'up',ca_evolution:'+19% sur 3 ans'},
+    {id:'m26',titre:'École de musique — 350 élèves',secteur:'services',secteur_label:'Services',region:'Occitanie',ville:'Bordeaux',ca:420,ebe:95,prix:280,effectif:12,annee_creation:2005,date_publication:'il y a 8 jours',source:'CCI France',score:67,score_financier:70,score_valorisation:65,score_croissance:62,score_risque:71,description:'Ecole de musique associative transformée en SARL. 350 élèves, 12 professeurs spécialisés.',points_forts:['350 élèves fidèles','12 profs qualifiés','Baux long terme'],motif_cession:'Retraite directeur',ca_trend:'stable',ca_evolution:'+4% sur 3 ans'},
+    {id:'m27',titre:'Agence de communication créative',secteur:'tech',secteur_label:'Tech & Digital',region:'Île-de-France',ville:'Paris 3e',ca:1100,ebe:242,prix:720,effectif:9,annee_creation:2012,date_publication:'il y a 6 jours',source:'Cession PME',score:75,score_financier:78,score_valorisation:73,score_croissance:75,score_risque:74,description:'Agence communication 360. Clients PME et ETI. Direction artistique reconnue.',points_forts:['Clients ETI','DA reconnue','Equipe créative stable'],motif_cession:'Association avec partenaire',ca_trend:'up',ca_evolution:'+11% sur 3 ans'},
+    {id:'m28',titre:'Cartonnerie — emballages agroalimentaire',secteur:'industrie',secteur_label:'Industrie',region:'Pays de la Loire',ville:'Angers',ca:6200,ebe:744,prix:2800,effectif:34,annee_creation:1992,date_publication:'il y a 11 jours',source:'Fusacq',score:72,score_financier:75,score_valorisation:70,score_croissance:65,score_risque:78,description:'Cartonnerie spécialisée emballages alimentaires. Clients industriels sous contrat annuel.',points_forts:['Clients sous contrat','Outil industriel moderne','Niche agroalimentaire'],motif_cession:'Transmission familiale',ca_trend:'stable',ca_evolution:'+3% sur 3 ans'},
+    {id:'m29',titre:'Cabinet architecture — logements collectifs',secteur:'services',secteur_label:'Services B2B',region:'Île-de-France',ville:'Paris 15e',ca:1340,ebe:295,prix:880,effectif:11,annee_creation:2004,date_publication:'il y a 4 jours',source:'Bpifrance',score:78,score_financier:81,score_valorisation:76,score_croissance:74,score_risque:80,description:'Cabinet architecture spécialisé logements collectifs et rénovation. Agréments MOE.',points_forts:['Agréments MOE','Clients promoteurs','Carnet de 2 ans'],motif_cession:'Retraite associé fondateur',ca_trend:'up',ca_evolution:'+9% sur 3 ans'},
+    {id:'m30',titre:'Réseau d agences de voyage — 4 agences',secteur:'services',secteur_label:'Services',region:'Provence-Alpes-Côte Azur',ville:'Marseille',ca:8500,ebe:510,prix:1800,effectif:18,annee_creation:2000,date_publication:'il y a 3 semaines',source:'CCI France',score:65,score_financier:68,score_valorisation:63,score_croissance:58,score_risque:70,description:'Réseau 4 agences de voyage. Habilitations IATA. Clientèle affaires et loisirs fidèle.',points_forts:['Habilitations IATA','4 emplacements','Clientèle corporate'],motif_cession:'Retraite dirigeant',ca_trend:'up',ca_evolution:'+22% sur 3 ans'},
+    {id:'m31',titre:'Pépinière horticole — vente professionnelle',secteur:'commerce',secteur_label:'Commerce',region:'Normandie',ville:'Rouen',ca:1800,ebe:270,prix:980,effectif:14,annee_creation:1988,date_publication:'il y a 7 jours',source:'Transentreprise',score:71,score_financier:74,score_valorisation:69,score_croissance:64,score_risque:76,description:'Pépinière horticole. Ventes B2B collectivités et paysagistes. 12 ha de production.',points_forts:['12 ha propres','Clients collectivités','Savoir-faire unique'],motif_cession:'Retraite',ca_trend:'stable',ca_evolution:'+5% sur 3 ans'},
+    {id:'m32',titre:'Studio enregistrement et production musicale',secteur:'tech',secteur_label:'Tech & Digital',region:'Île-de-France',ville:'Paris 18e',ca:520,ebe:130,prix:390,effectif:4,annee_creation:2011,date_publication:'il y a 2 jours',source:'Cession PME',score:69,score_financier:72,score_valorisation:67,score_croissance:72,score_risque:66,description:'Studio pro enregistrement. Clients labels et artistes indépendants. Matériel haut de gamme.',points_forts:['Matériel premium','Carnet artistes','Local propriété'],motif_cession:'Reconversion',ca_trend:'up',ca_evolution:'+14% sur 3 ans'},
+    {id:'m33',titre:'Société sécurité privée — 12 agents certifiés',secteur:'services',secteur_label:'Services B2B',region:'Île-de-France',ville:'Cergy',ca:1650,ebe:165,prix:450,effectif:15,annee_creation:2008,date_publication:'il y a 5 jours',source:'CCI France',score:61,score_financier:63,score_valorisation:59,score_croissance:55,score_risque:66,description:'Société sécurité privée. Agréments Préfecture. Clients sites industriels et commerciaux.',points_forts:['Agréments valides','Clients industriels','Equipe formée'],motif_cession:'Rachat groupe',ca_trend:'stable',ca_evolution:'+1% sur 3 ans'},
+    {id:'m34',titre:'Holding foncière PME — 3 locaux commerciaux',secteur:'services',secteur_label:'Immobilier',region:'Grand Est',ville:'Mulhouse',ca:480,ebe:360,prix:2800,effectif:2,annee_creation:2003,date_publication:'il y a 9 jours',source:'Fusacq',score:83,score_financier:86,score_valorisation:80,score_croissance:68,score_risque:89,description:'Holding foncière. 3 locaux commerciaux loués. Rendement net 12.8%. Baux commerciaux.',points_forts:['Rendement 12.8%','Baux commerciaux','Zéro vacance'],motif_cession:'Succession',ca_trend:'stable',ca_evolution:'+4% sur 3 ans'},
+    {id:'m35',titre:'Clinique dentaire — 4 fauteuils',secteur:'sante',secteur_label:'Santé',region:'Bretagne',ville:'Nantes',ca:1200,ebe:300,prix:1100,effectif:7,annee_creation:2010,date_publication:'il y a 3 jours',source:'Bpifrance',score:81,score_financier:84,score_valorisation:79,score_croissance:76,score_risque:85,description:'Clinique dentaire 4 fauteuils. 2 800 patients actifs. Omnipratique et implantologie.',points_forts:['2800 patients actifs','Implantologie','Equipe de 2 assistantes'],motif_cession:'Départ retraite praticien',ca_trend:'up',ca_evolution:'+7% sur 3 ans'},
+    {id:'m36',titre:'Entreprise maçonnerie gros oeuvre',secteur:'industrie',secteur_label:'Industrie BTP',region:'Nouvelle-Aquitaine',ville:'Pau',ca:2800,ebe:308,prix:900,effectif:18,annee_creation:2000,date_publication:'il y a 6 jours',source:'CCI France',score:67,score_financier:70,score_valorisation:65,score_croissance:60,score_risque:72,description:'Maçonnerie gros oeuvre. Clients promoteurs et particuliers. Qualibat 2111 et 2112.',points_forts:['Qualibat certifié','18 compagnons','Marchés publics'],motif_cession:'Retraite',ca_trend:'stable',ca_evolution:'+2% sur 3 ans'},
+    {id:'m37',titre:'Centre de formation professionnelle',secteur:'services',secteur_label:'Services',region:'Hauts-de-France',ville:'Amiens',ca:890,ebe:178,prix:530,effectif:9,annee_creation:2009,date_publication:'il y a 4 jours',source:'Transentreprise',score:73,score_financier:76,score_valorisation:71,score_croissance:70,score_risque:75,description:'Centre formation professionnelle. Certifié Qualiopi. Formations continues et CPF.',points_forts:['Certification Qualiopi','Accès CPF','9 formateurs'],motif_cession:'Rachat stratégique',ca_trend:'up',ca_evolution:'+20% sur 3 ans'},
+    {id:'m38',titre:'Fromagerie affineur — vente en gros',secteur:'commerce',secteur_label:'Commerce',region:'Auvergne-Rhône-Alpes',ville:'Clermont-Ferrand',ca:2100,ebe:315,prix:1050,effectif:10,annee_creation:1995,date_publication:'il y a 2 semaines',source:'Fusacq',score:76,score_financier:79,score_valorisation:74,score_croissance:68,score_risque:82,description:'Fromagerie affineur fromages AOP Auvergne. Clients restaurateurs et épiceries fines.',points_forts:['Savoir-faire unique','AOP exclusives','Clientèle fidèle'],motif_cession:'Retraite maître affineur',ca_trend:'stable',ca_evolution:'+6% sur 3 ans'},
+    {id:'m39',titre:'Cabinet conseil RH et droit social',secteur:'services',secteur_label:'Services B2B',region:'Île-de-France',ville:'La Défense',ca:1450,ebe:363,prix:1090,effectif:10,annee_creation:2007,date_publication:'il y a 1 jour',source:'Bpifrance',score:84,score_financier:87,score_valorisation:82,score_croissance:79,score_risque:88,description:'Cabinet conseil RH et droit social. Clients ETI et groupes. Missions récurrentes.',points_forts:['Clients ETI','Missions récurrentes','Equipe senior'],motif_cession:'Association stratégique',ca_trend:'up',ca_evolution:'+12% sur 3 ans'},
+    {id:'m40',titre:'Réseau franchise coiffure — 6 salons',secteur:'services',secteur_label:'Services',region:'Occitanie',ville:'Nimes',ca:1800,ebe:270,prix:920,effectif:30,annee_creation:2003,date_publication:'il y a 7 jours',source:'CCI France',score:70,score_financier:72,score_valorisation:68,score_croissance:65,score_risque:74,description:'Réseau de 6 salons coiffure en franchise nationale. Chiffres certifiés. Equipes en place.',points_forts:['6 emplacements','Franchise nationale','Chiffres certifiés'],motif_cession:'Retraite franchisé master',ca_trend:'stable',ca_evolution:'+4% sur 3 ans'},
+    {id:'m41',titre:'Electricité générale — marchés tertiaire',secteur:'industrie',secteur_label:'Industrie BTP',region:'Normandie',ville:'Caen',ca:3600,ebe:396,prix:1400,effectif:21,annee_creation:2001,date_publication:'il y a 5 jours',source:'Transentreprise',score:74,score_financier:77,score_valorisation:72,score_croissance:68,score_risque:78,description:'Electricité générale tertiaire. Qualifications QualiElec P1 P2 P3. Carnet clients solide.',points_forts:['QualiElec qualifié','Marchés tertiaire','Equipe technique'],motif_cession:'Retraite',ca_trend:'up',ca_evolution:'+8% sur 3 ans'},
+    {id:'m42',titre:'Négoce matériaux construction — 2 dépôts',secteur:'commerce',secteur_label:'Commerce',region:'Pays de la Loire',ville:'Laval',ca:7200,ebe:504,prix:1800,effectif:16,annee_creation:1998,date_publication:'il y a 10 jours',source:'CCI France',score:68,score_financier:71,score_valorisation:66,score_croissance:60,score_risque:73,description:'Négoce matériaux. 2 dépôts, 3 500 références. Clients artisans et promoteurs locaux.',points_forts:['2 dépôts propres','3500 références','Artisans fidèles'],motif_cession:'Retraite gérant',ca_trend:'stable',ca_evolution:'+3% sur 3 ans'},
+    {id:'m43',titre:'Application mobile tourisme — 85k utilisateurs',secteur:'tech',secteur_label:'Tech & Digital',region:'Bretagne',ville:'Rennes',ca:380,ebe:114,prix:850,effectif:4,annee_creation:2019,date_publication:'il y a 2 jours',source:'Bpifrance',score:80,score_financier:74,score_valorisation:68,score_croissance:95,score_risque:80,description:'App mobile tourisme Bretagne. 85 000 utilisateurs actifs. Monétisation freemium + BtoB.',points_forts:['85k utilisateurs','Modèle freemium','API partenaires'],motif_cession:'Financement croissance',ca_trend:'up',ca_evolution:'+65% sur 3 ans'},
+    {id:'m44',titre:'Garage réparation automobile — agrément constructeur',secteur:'services',secteur_label:'Services',region:'Grand Est',ville:'Reims',ca:2200,ebe:286,prix:860,effectif:10,annee_creation:2006,date_publication:'il y a 6 jours',source:'Fusacq',score:72,score_financier:75,score_valorisation:70,score_croissance:66,score_risque:76,description:'Garage agréé 2 constructeurs. Carrosserie, mécanique, CT. 1200 clients actifs.',points_forts:['Double agrément','Carrosserie intégrée','1200 clients actifs'],motif_cession:'Retraite',ca_trend:'stable',ca_evolution:'+5% sur 3 ans'},
+    {id:'m45',titre:'Société ingénierie industrielle — process agroalim',secteur:'industrie',secteur_label:'Industrie',region:'Pays de la Loire',ville:'Saint-Nazaire',ca:3800,ebe:570,prix:2280,effectif:22,annee_creation:2005,date_publication:'il y a 4 jours',source:'Cession PME',score:85,score_financier:88,score_valorisation:83,score_croissance:82,score_risque:87,description:'Ingénierie industrielle process agroalimentaire. Bureau études + MOE + installation. Export 30%.',points_forts:['Export 30%','Certifications ISO','BE + MOE intégré'],motif_cession:'Départ retraite directeur',ca_trend:'up',ca_evolution:'+17% sur 3 ans'},
+    {id:'m46',titre:'Cabinet ostéopathie — 3 praticiens',secteur:'sante',secteur_label:'Santé',region:'Auvergne-Rhône-Alpes',ville:'Annecy',ca:480,ebe:144,prix:420,effectif:3,annee_creation:2014,date_publication:'il y a 3 jours',source:'Bpifrance',score:76,score_financier:79,score_valorisation:74,score_croissance:72,score_risque:79,description:'Cabinet ostéopathie 3 praticiens. 1400 patients actifs. Local propre rénové. Zone touristique.',points_forts:['Local propre','1400 patients','Zone dynamique'],motif_cession:'Déménagement praticien',ca_trend:'up',ca_evolution:'+9% sur 3 ans'},
+    {id:'m47',titre:'Librairie indépendante et papeterie',secteur:'commerce',secteur_label:'Commerce',region:'Bretagne',ville:'Quimper',ca:580,ebe:87,prix:260,effectif:4,annee_creation:2001,date_publication:'il y a 2 semaines',source:'CCI France',score:58,score_financier:60,score_valorisation:56,score_croissance:50,score_risque:63,description:'Librairie indépendante labelisée LIR. Rayon papeterie. Scolaire et commerce général.',points_forts:['Label LIR','Scolaire récurrent','Local bien situé'],motif_cession:'Départ retraite',ca_trend:'down',ca_evolution:'-2% sur 3 ans'},
+    {id:'m48',titre:'Société maintenance ascenseurs et élévateurs',secteur:'industrie',secteur_label:'Industrie',region:'Île-de-France',ville:'Villepinte',ca:4100,ebe:533,prix:2000,effectif:18,annee_creation:2003,date_publication:'il y a 8 jours',source:'Fusacq',score:82,score_financier:85,score_valorisation:80,score_croissance:76,score_risque:86,description:'Maintenance ascenseurs. 450 appareils sous contrat. Agréments NF. Clients bailleurs.',points_forts:['450 contrats maintenance','Agréments NF','Clients bailleurs publics'],motif_cession:'Rachat par groupe',ca_trend:'up',ca_evolution:'+10% sur 3 ans'},
+    {id:'m49',titre:'Hôtel 3 étoiles — 42 chambres bord de mer',secteur:'restauration',secteur_label:'Hôtellerie',region:'Normandie',ville:'Deauville',ca:2100,ebe:630,prix:4500,effectif:14,annee_creation:1978,date_publication:'il y a 5 jours',source:'Transentreprise',score:79,score_financier:82,score_valorisation:76,score_croissance:74,score_risque:83,description:'Hôtel 3 étoiles 42 chambres à Deauville. Taux occupation 74%. Restaurant 60 couverts.',points_forts:['Emplacement bord de mer','Taux occupation 74%','Restaurant 60 couverts'],motif_cession:'Succession familiale',ca_trend:'up',ca_evolution:'+13% sur 3 ans'},
+    {id:'m50',titre:'Startup cybersécurité — solution SaaS B2B',secteur:'tech',secteur_label:'Tech & Digital',region:'Île-de-France',ville:'Paris 2e',ca:620,ebe:186,prix:2400,effectif:8,annee_creation:2020,date_publication:'il y a 1 jour',source:'Bpifrance',score:86,score_financier:80,score_valorisation:74,score_croissance:98,score_risque:85,description:'Startup cybersécurité SaaS B2B. 78 clients PME. ARR 620k€, croissance +85%/an. BPI labellisée.',points_forts:['Croissance +85%/an','Label BPI','Technologie propriétaire'],motif_cession:'Levée série A',ca_trend:'up',ca_evolution:'+85% sur 3 ans'}
+  ];
+}
+
+try{if(localStorage.getItem("ds-c"))document.getElementById("cookie-banner").style.display="none";}catch(x){}
+loadAll();
+</script>
+</body>
+</html>
