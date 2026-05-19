@@ -348,26 +348,39 @@ function doFilterS(s){ _D.sect=s; doSearch(); }
 function setSort(btn,s){ document.querySelectorAll('.s-tab').forEach(function(b){b.classList.remove('active');}); btn.classList.add('active'); _D.sort=s; if(_D.list.length) render(srt(_D.list)); }
 
 function loadAll(){
-  // Charge depuis data/annonces.json (vraies données scrappées)
-  // Fallback sur mock() si le fichier n'est pas disponible
+  // Timeout de 3 secondes max, sinon fallback mock
+  var timeout = setTimeout(function(){
+    console.log('Timeout JSON — fallback mock');
+    useMock();
+  }, 3000);
+
   fetch('data/annonces.json?v=' + Date.now())
-    .then(function(r){ return r.json(); })
+    .then(function(r){
+      if(!r.ok) throw new Error('HTTP ' + r.status);
+      return r.json();
+    })
     .then(function(d){
-      if(!d||!d.length) throw new Error('vide');
+      clearTimeout(timeout);
+      if(!d || !d.length) throw new Error('vide');
       var n=d.length;
       var k=eid('kpi-annonces'), b=eid('badge-count');
       if(k) k.textContent=n; if(b) b.textContent=n;
       eid('empty').classList.remove('on');
       render(srt(d));
     })
-    .catch(function(){
-      // Fallback mock si pas de données réelles
-      var d=mock(), n=d.length;
-      var k=eid('kpi-annonces'), b=eid('badge-count');
-      if(k) k.textContent=n; if(b) b.textContent=n;
-      eid('empty').classList.remove('on');
-      render(srt(d));
+    .catch(function(e){
+      clearTimeout(timeout);
+      console.log('JSON non dispo:', e.message, '— fallback mock');
+      useMock();
     });
+}
+
+function useMock(){
+  var d=mock(), n=d.length;
+  var k=eid('kpi-annonces'), b=eid('badge-count');
+  if(k) k.textContent=n; if(b) b.textContent=n;
+  eid('empty').classList.remove('on');
+  render(srt(d));
 }
 
 async function doSearch(){
